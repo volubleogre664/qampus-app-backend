@@ -21,12 +21,12 @@ const server = new ApolloServer({
   context: ({ req }) => ({ req, pubsub }),
 });
 
-const URL = "https://secret-atoll-52505.herokuapp.com";
+const URL = "https://qampus-app.herokuapp.com";
 
 const app = express();
 
 var corsOptions = {
-  origin: "https://qampus-app.web.app/",
+  origin: "https://qampus-app.web.app",
   credentials: true,
 };
 

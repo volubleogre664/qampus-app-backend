@@ -3,6 +3,7 @@ import pkg from "apollo-server";
 const { ApolloServer, PubSub } = pkg;
 
 import mongoose from "mongoose";
+import express from "express";
 
 import { MONGO_DB } from "./config.js";
 import typeDefs from "./graphql/typedefs.js";
@@ -17,6 +18,15 @@ const server = new ApolloServer({
   resolvers,
   context: ({ req }) => ({ req, pubsub }),
 });
+
+const app = express();
+
+var corsOptions = {
+  origin: "https://qampus-app.web.app/",
+  credentials: true,
+};
+
+server.applyMiddleware({ app, cors: corsOptions });
 
 mongoose
   .connect(MONGO_DB, {

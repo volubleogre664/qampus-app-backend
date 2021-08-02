@@ -1,6 +1,8 @@
 // import { ApolloServer, PubSub } from "apollo-server";
-import pkg from "apollo-server";
-const { ApolloServer, PubSub } = pkg;
+import pkg from "apollo-server-express";
+import pkg2 from "apollo-server";
+const { ApolloServer } = pkg;
+const { PubSub } = pkg2;
 
 import mongoose from "mongoose";
 import express from "express";
@@ -19,6 +21,8 @@ const server = new ApolloServer({
   context: ({ req }) => ({ req, pubsub }),
 });
 
+const URL = "https://secret-atoll-52505.herokuapp.com";
+
 const app = express();
 
 var corsOptions = {
@@ -26,6 +30,7 @@ var corsOptions = {
   credentials: true,
 };
 
+await server.start();
 server.applyMiddleware({ app, cors: corsOptions });
 
 mongoose
@@ -36,9 +41,9 @@ mongoose
   })
   .then(() => {
     console.log("MongoDB Connected");
-    return server.listen({ port: PORT || 5000 });
+    return app.listen({ port: PORT || 5000 });
   })
   .then((res) => {
-    console.log(`Server running at ${res.url}`);
+    console.log(`Server running at ${URL}${server.graphqlPath}`);
   })
   .catch((err) => console.log("Error: ", err));

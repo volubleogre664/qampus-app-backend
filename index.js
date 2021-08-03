@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 6000;
 const URL = "https://qampus-app.herokuapp.com";
 // const URL = "http://localhost";
 const corsOptions = {
-  origin: "https://qampus-app.web.app",
+  origin: "https://qampus.co.za",
   credentials: true,
 };
 

@@ -1,9 +1,11 @@
 // import { ApolloServer, PubSub } from "apollo-server";
 import pkg from "apollo-server-express";
+// import fs from "fs";
+// import path from "path";
 const { ApolloServer } = pkg;
 import { PubSub } from "graphql-subscriptions";
 import { execute, subscribe } from "graphql";
-import { createServer } from "http";
+import { createServer } from "https";
 import { SubscriptionServer } from "subscriptions-transport-ws";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 
@@ -14,10 +16,11 @@ import { MONGO_DB } from "./config.js";
 import typeDefs from "./graphql/typedefs.js";
 import resolvers from "./graphql/resolvers/index.js";
 
-const pubsub = new PubSub();
-const PORT = process.env.PORT;
 const schema = makeExecutableSchema({ typeDefs, resolvers });
+const pubsub = new PubSub();
+const PORT = process.env.PORT || 5500;
 const URL = "https://qampus-app.herokuapp.com";
+// const URL = "http://localhost";
 const corsOptions = {
   origin: "https://qampus-app.web.app",
   credentials: true,
@@ -30,26 +33,23 @@ const server = new ApolloServer({
   context: ({ req }) => ({ req, pubsub }),
 });
 
+app.get(
+  "/.well-known/pki-validation/9846C84BCF4D037C7AEC39D28E98CB88.txt",
+  async function (req, res) {
+    res.sendFile("./9846C84BCF4D037C7AEC39D28E98CB88.txt", { root: "/" });
+  }
+);
+
 await server.start();
 server.applyMiddleware({ app, cors: corsOptions });
 
 const subscriptionServer = SubscriptionServer.create(
+  { schema, execute, subscribe },
   {
-    // This is the `schema` we just created.
-    schema,
-    // These are imported from `graphql`.
-    execute,
-    subscribe,
-  },
-  {
-    // This is the `httpServer` we created in a previous step.
     server: httpServer,
-    // This `server` is the instance returned from `new ApolloServer`.
     path: server.graphqlPath + "/subscriptions",
   }
 );
-
-console.log(server.graphqlPath);
 
 // Shut down in the case of interrupt and termination signals
 // We expect to handle this more cleanly in the future. See (#5074)[https://github.com/apollographql/apollo-server/issues/5074] for reference.
@@ -65,9 +65,9 @@ mongoose
   })
   .then(() => {
     console.log("MongoDB Connected");
-    return httpServer.listen({ port: PORT || 5000 });
+    return httpServer.listen({ port: PORT });
   })
-  .then((res) => {
-    console.log(`Server running at ${URL}${server.graphqlPath}`);
+  .then(() => {
+    console.log(`Server running at ${URL}${server.graphqlPath}:${PORT}`);
   })
   .catch((err) => console.log("Error: ", err));

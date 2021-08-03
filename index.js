@@ -1,7 +1,4 @@
-// import { ApolloServer, PubSub } from "apollo-server";
 import pkg from "apollo-server-express";
-// import fs from "fs";
-// import path from "path";
 const { ApolloServer } = pkg;
 import { PubSub } from "graphql-subscriptions";
 import { execute, subscribe } from "graphql";
@@ -33,6 +30,7 @@ const server = new ApolloServer({
   context: ({ req }) => ({ req, pubsub }),
 });
 
+app.use(express.static("static"));
 app.get(
   "/.well-known/pki-validation/9846C84BCF4D037C7AEC39D28E98CB88.txt",
   async function (req, res) {

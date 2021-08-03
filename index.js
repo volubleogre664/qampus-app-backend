@@ -36,7 +36,8 @@ const server = new ApolloServer({
 app.get(
   "/.well-known/pki-validation/9846C84BCF4D037C7AEC39D28E98CB88.txt",
   async function (req, res) {
-    res.sendFile("./9846C84BCF4D037C7AEC39D28E98CB88.txt", { root: "/" });
+    res.send("Working");
+    res.sendFile("./9846C84BCF4D037C7AEC39D28E98CB88.txt");
   }
 );
 

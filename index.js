@@ -5,7 +5,7 @@ import pkg from "apollo-server-express";
 const { ApolloServer } = pkg;
 import { PubSub } from "graphql-subscriptions";
 import { execute, subscribe } from "graphql";
-import { createServer } from "https";
+import { createServer } from "http";
 import { SubscriptionServer } from "subscriptions-transport-ws";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 
@@ -18,7 +18,7 @@ import resolvers from "./graphql/resolvers/index.js";
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const pubsub = new PubSub();
-const PORT = process.env.PORT || 5500;
+const PORT = process.env.PORT || 6000;
 const URL = "https://qampus-app.herokuapp.com";
 // const URL = "http://localhost";
 const corsOptions = {

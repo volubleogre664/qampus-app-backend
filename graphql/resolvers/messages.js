@@ -132,7 +132,7 @@ const messageResolvers = {
         if (book) {
           bookObj = await Book.findById(book);
 
-          if (bookObj.bookBuyers.includes(user.id)) {
+          if (!bookObj.bookBuyers.includes(user.id)) {
             bookObj.bookBuyers.push(user.id);
           }
 

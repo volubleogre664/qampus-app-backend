@@ -15,11 +15,12 @@ import resolvers from "./graphql/resolvers/index.js";
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const pubsub = new PubSub();
-const PORT = process.env.PORT || 6000;
+const PORT = process.env.PORT || 5000;
 const URL = "https://qampus-app.herokuapp.com";
 // const URL = "http://localhost";
 const corsOptions = {
   origin: "https://qampus.co.za",
+  // origin: "http://localhost:3000",
   credentials: true,
 };
 
@@ -30,11 +31,10 @@ const server = new ApolloServer({
   context: ({ req }) => ({ req, pubsub }),
 });
 
-app.use(express.static("static"));
 app.get(
   "/.well-known/pki-validation/9846C84BCF4D037C7AEC39D28E98CB88.txt",
   async function (req, res) {
-    res.sendFile("9846C84BCF4D037C7AEC39D28E98CB88.txt");
+    res.sendFile("./9846C84BCF4D037C7AEC39D28E98CB88.txt");
   }
 );
 

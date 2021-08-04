@@ -28,6 +28,7 @@ const app = express();
 app.get(
   "/.well-known/pki-validation/9846C84BCF4D037C7AEC39D28E98CB88.txt",
   async function (req, res) {
+    res.setHeader("Content-Type", "text/txt");
     res.sendFile("./9846C84BCF4D037C7AEC39D28E98CB88.txt");
   }
 );

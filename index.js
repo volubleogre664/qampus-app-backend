@@ -25,18 +25,17 @@ const corsOptions = {
 };
 
 const app = express();
-const httpServer = createServer(app);
-const server = new ApolloServer({
-  schema,
-  context: ({ req }) => ({ req, pubsub }),
-});
-
 app.get(
   "/.well-known/pki-validation/9846C84BCF4D037C7AEC39D28E98CB88.txt",
   async function (req, res) {
     res.sendFile("./9846C84BCF4D037C7AEC39D28E98CB88.txt");
   }
 );
+const httpServer = createServer(app);
+const server = new ApolloServer({
+  schema,
+  context: ({ req }) => ({ req, pubsub }),
+});
 
 await server.start();
 server.applyMiddleware({ app, cors: corsOptions });

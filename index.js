@@ -9,7 +9,7 @@ import mongoose from "mongoose";
 import express from "express";
 import path from "path";
 import fs from "fs";
-import { createServer } from "https";
+import { createServer } from "http";
 
 import { MONGO_DB } from "./config.js";
 import typeDefs from "./graphql/typedefs.js";
@@ -17,19 +17,20 @@ import resolvers from "./graphql/resolvers/index.js";
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const pubsub = new PubSub();
-const PORT = process.env.PORT || 5500;
-const URL = "https://qampus-app.herokuapp.com";
-// const URL = "https://localhost";
+const PORT = process.env.PORT || 5000;
+// const URL = "https://qampus-app.herokuapp.com";
+const URL = "http://localhost";
 const corsOptions = {
-  origin: "https://qampus.co.za",
+  origin: "*",
   credentials: true,
 };
-const credentials = {
-  key: fs.readFileSync("./certificates/qampus-app.key"),
-  cert: fs.readFileSync("./certificates/certificate.crt"),
-  ca: fs.readFileSync("./certificates/ca_bundle.crt"),
-  passphrase: "",
-};
+
+// const credentials = {
+//   key: fs.readFileSync("./certificates/qampus-app.key"),
+//   cert: fs.readFileSync("./certificates/certificate.crt"),
+//   ca: fs.readFileSync("./certificates/ca_bundle.crt"),
+//   passphrase: "",
+// };
 
 const app = express();
 app.get(
@@ -38,7 +39,7 @@ app.get(
     res.sendFile(path.resolve("./") + "/9846C84BCF4D037C7AEC39D28E98CB88.txt");
   }
 );
-const httpServer = createServer(credentials, app);
+const httpServer = createServer(app);
 const server = new ApolloServer({
   schema,
   context: ({ req }) => ({ req, pubsub }),

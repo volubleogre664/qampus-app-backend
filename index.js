@@ -34,9 +34,9 @@ const corsOptions = {
 
 const app = express();
 app.get(
-  "/.well-known/pki-validation/9846C84BCF4D037C7AEC39D28E98CB88.txt",
+  "/.well-known/pki-validation/BD50D265FA690AB546CF754A60AF4C6D.txt",
   async function (req, res) {
-    res.sendFile(path.resolve("./") + "/9846C84BCF4D037C7AEC39D28E98CB88.txt");
+    res.sendFile(path.resolve("./") + "/BD50D265FA690AB546CF754A60AF4C6D.txt");
   }
 );
 const httpServer = createServer(app);

@@ -45,8 +45,10 @@ const server = new ApolloServer({
   context: ({ req }) => ({ req, pubsub }),
 });
 
-await server.start();
-server.applyMiddleware({ app, cors: corsOptions });
+(async () => {
+  await server.start();
+  server.applyMiddleware({ app, cors: corsOptions });
+})();
 
 const subscriptionServer = SubscriptionServer.create(
   { schema, execute, subscribe },

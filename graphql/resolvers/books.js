@@ -73,7 +73,6 @@ const bookResolvers = {
     async deleteBook(_, { bookId }, context) {
       // Confirm the logged in user
       const user = checkAuth(context);
-      console.log(bookId);
 
       try {
         // Find the book to delete based with ID

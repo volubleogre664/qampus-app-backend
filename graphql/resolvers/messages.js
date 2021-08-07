@@ -6,6 +6,7 @@ import checkAuth from "../../utils/checkAuth.js";
 import Message from "../../models/Message.js";
 import User from "../../models/User.js";
 import Book from "../../models/Book.js";
+import pusher from "../../utils/pusher.js";
 
 const messageResolvers = {
   Query: {
@@ -147,9 +148,14 @@ const messageResolvers = {
 
         // This sends the message to receiver of the message
         // The message is sent to the receiver's client with event NEW_MESSAGE
-        context.pubsub.publish("NEW_MESSAGE", {
+
+        pusher.trigger("messages", "NEW_MESSAGE", {
           newMessage: { ...res._doc, id: res._id, book: bookObj },
         });
+
+        // context.pubsub.publish("NEW_MESSAGE", {
+        //   newMessage: { ...res._doc, id: res._id, book: bookObj },
+        // });
 
         // Return message to the client side
         return {

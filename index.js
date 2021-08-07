@@ -33,12 +33,12 @@ const corsOptions = {
 // };
 
 const app = express();
-app.get(
-  "/.well-known/pki-validation/BD50D265FA690AB546CF754A60AF4C6D.txt",
-  async function (req, res) {
-    res.sendFile(path.resolve("./") + "/BD50D265FA690AB546CF754A60AF4C6D.txt");
-  }
-);
+// app.get(
+//   "/.well-known/pki-validation/BD50D265FA690AB546CF754A60AF4C6D.txt",
+//   async function (req, res) {
+//     res.sendFile(path.resolve("./") + "/BD50D265FA690AB546CF754A60AF4C6D.txt");
+//   }
+// );
 const httpServer = createServer(app);
 const server = new ApolloServer({
   schema,

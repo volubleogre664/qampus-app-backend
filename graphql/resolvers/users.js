@@ -154,7 +154,6 @@ const userResolvers = {
 
       // TODO: Come back and here work out the update user with and without the password
       // Check if passwords match before doing anything
-
       console.log(updateInput);
 
       // strip password, confirmNewPassword, newPassword off of the updateInput

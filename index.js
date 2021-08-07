@@ -18,10 +18,10 @@ import resolvers from "./graphql/resolvers/index.js";
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const pubsub = new PubSub();
 const PORT = process.env.PORT || 5000;
-// const URL = "https://qampus-app.herokuapp.com";
-const URL = "http://localhost";
+const URL = "https://qampus-app.herokuapp.com";
+// const URL = "http://localhost";
 const corsOptions = {
-  origin: "https://qampus.co.za",
+  origin: "qampus.co.za",
   credentials: true,
 };
 

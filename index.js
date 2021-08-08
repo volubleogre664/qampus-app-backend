@@ -21,7 +21,7 @@ const PORT = process.env.PORT || 5000;
 const URL = "https://qampus-app.herokuapp.com";
 // const URL = "http://localhost";
 const corsOptions = {
-  origin: "https://qampus.co.za",
+  origin: "*",
   credentials: true,
 };
 
@@ -33,6 +33,7 @@ const corsOptions = {
 // };
 
 const app = express();
+app.use(co);
 // app.get(
 //   "/.well-known/pki-validation/BD50D265FA690AB546CF754A60AF4C6D.txt",
 //   async function (req, res) {

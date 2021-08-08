@@ -144,11 +144,11 @@ const messageResolvers = {
           // Send an email to bookOwner that someone wants their book
           if (bookObj) {
             sendEmail("BOOK_SALE", {
-              seller: {
+              buyer: {
                 firstName: user.firstName,
                 lastName: user.lastName,
               },
-              buyer: {
+              seller: {
                 firstName: toUser.firstName,
                 lastName: toUser.lastName,
                 email: toUser.email,

@@ -21,7 +21,7 @@ const PORT = process.env.PORT || 5000;
 const URL = "https://qampus-app.herokuapp.com";
 // const URL = "http://localhost";
 const corsOptions = {
-  origin: "*",
+  origin: "https://qampus.co.za",
   credentials: true,
 };
 
@@ -45,10 +45,8 @@ const server = new ApolloServer({
   context: ({ req }) => ({ req, pubsub }),
 });
 
-(async () => {
-  await server.start();
-  server.applyMiddleware({ app, cors: corsOptions });
-})();
+await server.start();
+server.applyMiddleware({ app, cors: corsOptions });
 
 const subscriptionServer = SubscriptionServer.create(
   { schema, execute, subscribe },

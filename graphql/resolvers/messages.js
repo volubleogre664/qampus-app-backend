@@ -147,9 +147,12 @@ const messageResolvers = {
               seller: {
                 firstName: user.firstName,
                 lastName: user.lastName,
-                email: user.email,
               },
-              buyer: { firstName: toUser.firstName, lastName: toUser.lastName },
+              buyer: {
+                firstName: toUser.firstName,
+                lastName: toUser.lastName,
+                email: toUser.email,
+              },
               book: {
                 title: bookObj.title,
                 price: bookObj.price,

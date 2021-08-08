@@ -58,6 +58,7 @@ build/Release
 
 # Dependency directories
 node_modules/
+practice.js
 
 # Optional npm cache directory
 .npm

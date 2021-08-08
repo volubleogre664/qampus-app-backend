@@ -7,6 +7,7 @@ import Message from "../../models/Message.js";
 import User from "../../models/User.js";
 import Book from "../../models/Book.js";
 import pusher from "../../utils/pusher.js";
+import sendEmail from "../../utils/sendEmail.js";
 
 const messageResolvers = {
   Query: {
@@ -139,6 +140,15 @@ const messageResolvers = {
 
           // Save the updated book to the database
           bookObj = await bookObj.save();
+
+          // Send an email to bookOwner that someone wants their book
+          if (bookObj) {
+            sendEmail("BOOK_SALE", {
+              seller: ({ firstName, lastName, email } = user),
+              buyer: ({ firstName, lastName } = toUser),
+              book: ({ title, price, frontCover } = bookObj),
+            });
+          }
         }
 
         // Update the book to add people interested to it
@@ -148,7 +158,6 @@ const messageResolvers = {
 
         // This sends the message to receiver of the message
         // The message is sent to the receiver's client with event NEW_MESSAGE
-
         pusher.trigger("messages", "NEW_MESSAGE", {
           newMessage: { ...res._doc, id: res._id, book: bookObj },
         });

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://kit.fontawesome.com/764ed6c5a4.js"
+      crossorigin="anonymous"
+    ></script>
+    <title>Your Book Was Bought - Qampus</title>
+
+    <%- include("./bookBoughtStyles") %>
+  </head>
+  <body>
+    <header>
+      <img class="logo" src="https://qampus.co.za/static/media/logo.a9b2e481.png" alt="qampus">
+    </header>
+    <section>
+      <div class="book">
+        <!-- Book body | part with image -->
+        <div class="book__imageContainer">
+          <img
+            loading="eager"
+            class="book__image"
+            src="<%= book?.frontCover %>"
+            alt="<%= book?.title %>"
+          >
+        </div>
+  
+        <!-- Book footer | part with delete and edit button -->
+        <div class="book__footer">
+          <div class="book__footerLeft">
+            <h4 class="title--light"><%= book?.title %></h4>
+            <p><%= "R" + book?.price %></p>
+          </div>
+        </div>
+      </div>
+  
+      <div class="textSection">
+        <h4>Hi <%= seller.firstName %> </h4>
+        <p><%= [buyer.firstName, buyer.lastName].join(" ") %> has shown an interest in your book. View their message and arrange with them the exchange.</p>
+  
+        <a href="https://qampus.co.za/chats">Contact <%= buyer.firstName %></a>
+      </div>
+    </section>
+  </body>
+</html>

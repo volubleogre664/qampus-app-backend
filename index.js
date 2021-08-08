@@ -18,11 +18,10 @@ import resolvers from "./graphql/resolvers/index.js";
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const pubsub = new PubSub();
 const PORT = process.env.PORT || 5000;
-// const URL = "https://qampus-app.herokuapp.com";
-const URL = "http://localhost";
+const URL = "https://qampus-app.herokuapp.com";
+// const URL = "http://localhost";
 const corsOptions = {
-  // origin: "https://qampus.co.za",
-  origin: "http://localhost:3000",
+  origin: "https://qampus.co.za",
   credentials: true,
 };
 
@@ -59,9 +58,9 @@ const subscriptionServer = SubscriptionServer.create(
 
 // Shut down in the case of interrupt and termination signals
 // We expect to handle this more cleanly in the future. See (#5074)[https://github.com/apollographql/apollo-server/issues/5074] for reference.
-// ["SIGINT", "SIGTERM"].forEach((signal) => {
-//   process.on(signal, () => subscriptionServer.close());
-// });
+["SIGINT", "SIGTERM"].forEach((signal) => {
+  process.on(signal, () => subscriptionServer.close());
+});
 
 mongoose
   .connect(MONGO_DB, {

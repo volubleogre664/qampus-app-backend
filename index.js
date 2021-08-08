@@ -33,7 +33,6 @@ const corsOptions = {
 // };
 
 const app = express();
-app.use(co);
 // app.get(
 //   "/.well-known/pki-validation/BD50D265FA690AB546CF754A60AF4C6D.txt",
 //   async function (req, res) {

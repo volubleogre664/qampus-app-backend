@@ -7,6 +7,13 @@ const msgSchema = new Schema({
   time: String,
   textMsg: String,
   book: Schema.Types.ObjectId,
+  expireAt: {
+    type: Date,
+    dafault: () => {
+      let date = new Date();
+      return date.setDate(date.getDate() + 90);
+    },
+  },
 });
 
 export default model("Message", msgSchema);

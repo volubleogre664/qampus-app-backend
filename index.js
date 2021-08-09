@@ -11,34 +11,30 @@ import path from "path";
 import fs from "fs";
 import { createServer } from "http";
 
+(async () => {
+  await import("dotenv").then((dotenv) => {
+    dotenv.config();
+  });
+})();
+
 import { MONGO_DB } from "./config.js";
 import typeDefs from "./graphql/typedefs.js";
 import resolvers from "./graphql/resolvers/index.js";
+import { verifyEmail } from "./routes/verifyEmail.js";
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const pubsub = new PubSub();
 const PORT = process.env.PORT || 5000;
-const URL = "https://qampus-app.herokuapp.com";
+const URL = process.env.SERVER_URL;
 // const URL = "http://localhost";
 const corsOptions = {
-  origin: "https://qampus.co.za",
+  origin: process.env.CLIENT_URL,
   credentials: true,
 };
 
-// const credentials = {
-//   key: fs.readFileSync("./certificates/qampus-app.key"),
-//   cert: fs.readFileSync("./certificates/certificate.crt"),
-//   ca: fs.readFileSync("./certificates/ca_bundle.crt"),
-//   passphrase: "",
-// };
-
 const app = express();
-// app.get(
-//   "/.well-known/pki-validation/BD50D265FA690AB546CF754A60AF4C6D.txt",
-//   async function (req, res) {
-//     res.sendFile(path.resolve("./") + "/BD50D265FA690AB546CF754A60AF4C6D.txt");
-//   }
-// );
+app.get("/auth/verification/verify-email/:userId/:secreteCode", verifyEmail);
+
 const httpServer = createServer(app);
 const server = new ApolloServer({
   schema,
@@ -58,9 +54,9 @@ const subscriptionServer = SubscriptionServer.create(
 
 // Shut down in the case of interrupt and termination signals
 // We expect to handle this more cleanly in the future. See (#5074)[https://github.com/apollographql/apollo-server/issues/5074] for reference.
-["SIGINT", "SIGTERM"].forEach((signal) => {
-  process.on(signal, () => subscriptionServer.close());
-});
+// ["SIGINT", "SIGTERM"].forEach((signal) => {
+//   process.on(signal, () => subscriptionServer.close());
+// });
 
 mongoose
   .connect(MONGO_DB, {

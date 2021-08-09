@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
-import pkg from 'apollo-server';
+import pkg from "apollo-server";
 const { AuthenticationError } = pkg;
 
-import { SECRET_KEY } from "../config.js";
+const SECRET_KEY = process.env.SECRET_KEY;
 
 export default function checkAuth(context) {
   const authHeader = context.req.headers.authorization;

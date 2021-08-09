@@ -76,7 +76,7 @@ practice.js
 .yarn-integrity
 
 # dotenv environment variables file
-.env
+
 
 
 # Elastic Beanstalk Files

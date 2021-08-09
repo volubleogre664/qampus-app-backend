@@ -29,14 +29,14 @@ function sendEmail(type, data) {
 
   ejs.renderFile(
     path.resolve("./") + fileTemplates[type],
-    book ? { seller, buyer, book } : data,
-    function (err, data) {
+    book ? { seller, buyer, book } : { user: data },
+    function (err, htmlData) {
       if (err) console.log("Error sending email", err);
       else {
         transport
           .sendMail({
             ...emailOptions,
-            html: data,
+            html: htmlData,
           })
           .then(() => console.log("Email sent"))
           .catch((err) => console.log("Error sending email", err));

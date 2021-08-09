@@ -10,6 +10,7 @@ import {
 } from "../../utils/validators.js";
 import User from "../../models/User.js";
 import { SECRET_KEY } from "../../config.js";
+import sendEmail from "../../utils/sendEmail.js";
 import checkAuth from "../../utils/checkAuth.js";
 
 function generateToken(user) {
@@ -141,6 +142,19 @@ const userResolvers = {
         token,
       };
       _user.contacts = [];
+
+      const secreteCode = await bcrypt.hash(
+        [_user.firstName, _user.lastName, _user.email].join("_"),
+        12
+      );
+
+      sendEmail("ACCOUNT_VERIFICATION", {
+        firstName: _user.firstName,
+        lastName: _user.lastNama,
+        email: _user.email,
+        verificationLink: `${process.env.SERVER_URL}/auth/verification/verify-email/${_user.id}/${secreteCode}`,
+      });
+
       return _user;
     },
     async updateUser(_, { updateInput }, context) {

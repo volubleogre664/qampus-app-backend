@@ -11,23 +11,20 @@ const bookSchema = new Schema({
   moduleCode: String,
   studentNumber: String,
   frontCover: String,
+  bookBuyers: [Schema.Types.ObjectId],
   isBought: {
     type: Boolean,
     default: false,
   },
-  bookBuyers: [Schema.Types.ObjectId],
   expireAt: {
     type: Date,
-    default: new Date("July 27, 2021 14:14:00"),
+    default: () => {
+      let date = new Date();
+      return date.setDate(date.getDate() + 180);
+    },
   },
 });
 
 const Book = model("Book", bookSchema);
-
-// Book.createIndexes({ expireAt: 1, expireAfterSeconds: 0 }, (err) => {
-//   if (err) {
-//     console.log("Error creating expiredAt index for Book: \n", err);
-//   }
-// });
 
 export default Book;

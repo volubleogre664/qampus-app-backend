@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finish Setting Up Account</title>
+
+    <%- include("./verifyAccountStyles.ejs") %>
+  </head>
+  <body>
+    <header>
+      <img
+        class="logo"
+        src="https://qampus.co.za/static/media/logo.a9b2e481.png"
+        alt="qampus"
+      />
+    </header>
+
+    <section>
+      <h1>Verify Your Email</h1>
+      <p>
+        <strong>Hi <%= [user.firstName, user.lastName].join(" ") %></strong>
+        <br />
+        Thank you for signing up with Qampus. Only one step to finish setting up
+        your account. Click verify email to complete your account setup.
+      </p>
+      <a href="<%= user.verificationLink %>">Verify Email</a>
+      <hr />
+
+      <footer>
+        <strong>NOTE</strong> <br />
+        You have <strong>12 hours</strong> to verify your email address. <br />
+        Your account will be deleted if it is not verified 12 hours from now.
+      </footer>
+    </section>
+  </body>
+</html>

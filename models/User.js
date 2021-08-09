@@ -11,6 +11,14 @@ const userSchema = new Schema({
   bio: String,
   contacts: [Schema.Types.ObjectId],
   password: String,
+  status: {
+    type: String,
+    default: "pending",
+  },
+  createdAt: {
+    type: Date,
+    default: new Date(),
+  },
 });
 
 export default model("User", userSchema);

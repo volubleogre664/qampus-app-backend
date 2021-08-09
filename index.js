@@ -11,16 +11,12 @@ import path from "path";
 import fs from "fs";
 import { createServer } from "http";
 
-(async () => {
-  await import("dotenv").then((dotenv) => {
-    dotenv.config();
-  });
-})();
-
 import { MONGO_DB } from "./config.js";
 import typeDefs from "./graphql/typedefs.js";
 import resolvers from "./graphql/resolvers/index.js";
 import { verifyEmail } from "./routes/verifyEmail.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const pubsub = new PubSub();

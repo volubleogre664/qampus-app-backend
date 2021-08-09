@@ -24,4 +24,4 @@ async function verifyEmail(req, res) {
   res.redirect(process.env.CLIENT_URL);
 }
 
-export { verifyEmail };
+export default verifyEmail;

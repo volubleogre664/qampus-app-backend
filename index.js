@@ -14,7 +14,7 @@ import { createServer } from "http";
 import { MONGO_DB } from "./config.js";
 import typeDefs from "./graphql/typedefs.js";
 import resolvers from "./graphql/resolvers/index.js";
-import { verifyEmail } from "./routes/verifyEmail.js";
+import { verifyEmail, verifySSL } from "./routes/index.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -30,6 +30,10 @@ const corsOptions = {
 
 const app = express();
 app.get("/auth/verification/verify-email/:userId/:secreteCode", verifyEmail);
+app.get(
+  "/.well-known/acme-challenge/LqLTlFHkdOHfdUUtdJ9xYK9ij2Ne7b4wBAY73dBrVZc",
+  verifySSL
+);
 
 const httpServer = createServer(app);
 const server = new ApolloServer({

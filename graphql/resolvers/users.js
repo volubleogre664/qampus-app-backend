@@ -9,6 +9,7 @@ import {
   validateRegisterInput,
 } from "../../utils/validators.js";
 import User from "../../models/User.js";
+import SecreteCode from "../../models/SecreteCode.js";
 import { SECRET_KEY } from "../../config.js";
 import sendEmail from "../../utils/sendEmail.js";
 import checkAuth from "../../utils/checkAuth.js";
@@ -143,21 +144,22 @@ const userResolvers = {
       };
       _user.contacts = [];
 
-      const secreteCode = await bcrypt.hash(
+      let secreteCode = await bcrypt.hash(
         [_user.firstName, _user.lastName, _user.email].join("_"),
         12
       );
 
+      secreteCode = secreteCode.replace(/\//g, "_");
+      await new SecreteCode({
+        email: _user.email,
+        code: secreteCode,
+      }).save();
+
       sendEmail("ACCOUNT_VERIFICATION", {
         firstName: _user.firstName,
-        lastName: _user.lastNama,
+        lastName: _user.lastName,
         email: _user.email,
-        verificationLink: `${
-          process.env.SERVER_URL
-        }/auth/verification/verify-email/${_user.id}/${secreteCode.replace(
-          /\//g,
-          ""
-        )}`,
+        verificationLink: `${process.env.SERVER_URL}/auth/verification/verify-email/${_user.id}/${secreteCode}`,
       });
 
       return _user;
@@ -195,8 +197,8 @@ const userResolvers = {
           });
         }
 
-        const newHashPassword = await bcrypt.hash(updateInput.newPassword, 12);
-        newUserData.password = newPassword;
+        const newHashPassword = await bcrypt.hash(newPassword, 12);
+        newUserData.password = newHashPassword;
       }
 
       // Save the data to updatedUser

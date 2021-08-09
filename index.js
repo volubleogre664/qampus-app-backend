@@ -9,7 +9,7 @@ import mongoose from "mongoose";
 import express from "express";
 import path from "path";
 import fs from "fs";
-import { createServer } from "http";
+import { createServer } from "https";
 
 import { MONGO_DB } from "./config.js";
 import typeDefs from "./graphql/typedefs.js";
@@ -22,10 +22,14 @@ const schema = makeExecutableSchema({ typeDefs, resolvers });
 const pubsub = new PubSub();
 const PORT = process.env.PORT || 5000;
 const URL = process.env.SERVER_URL;
-// const URL = "http://localhost";
+
 const corsOptions = {
   origin: process.env.CLIENT_URL,
   credentials: true,
+};
+const certificates = {
+  key: fs.readFileSync("./certificates/privkey.pem"),
+  cert: fs.readFileSync("./certificates/fullchain.pem"),
 };
 
 const app = express();
@@ -35,7 +39,7 @@ app.get(
   verifySSL
 );
 
-const httpServer = createServer(app);
+const httpServer = createServer(certificates, app);
 const server = new ApolloServer({
   schema,
   context: ({ req }) => ({ req, pubsub }),

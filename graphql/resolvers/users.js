@@ -152,7 +152,12 @@ const userResolvers = {
         firstName: _user.firstName,
         lastName: _user.lastNama,
         email: _user.email,
-        verificationLink: `${process.env.SERVER_URL}/auth/verification/verify-email/${_user.id}/${secreteCode}`,
+        verificationLink: `${
+          process.env.SERVER_URL
+        }/auth/verification/verify-email/${_user.id}/${secreteCode.replace(
+          /\//g,
+          ""
+        )}`,
       });
 
       return _user;

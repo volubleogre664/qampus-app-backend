@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import pkg from "apollo-server";
 const { UserInputError } = pkg;
 
-import { User, SecreteCode } from "../../models/index";
+import { User, SecreteCode } from "../../models/index.js";
 import { validators, checkAuth, sendEmail } from "../../utils/index.js";
 const { validateLoginInput, validateRegisterInput } = validators;
 

@@ -2,12 +2,8 @@ import dayjs from "dayjs";
 import pkg from "apollo-server";
 const { AuthenticationError, UserInputError, withFilter } = pkg;
 
-import checkAuth from "../../utils/checkAuth.js";
-import Message from "../../models/Message.js";
-import User from "../../models/User.js";
-import Book from "../../models/Book.js";
-import pusher from "../../utils/pusher.js";
-import sendEmail from "../../utils/sendEmail.js";
+import { Book, User, Message } from "../../models/index.js";
+import { sendEmail, pusher, checkAuth } from "../../utils/index.js";
 
 const messageResolvers = {
   Query: {

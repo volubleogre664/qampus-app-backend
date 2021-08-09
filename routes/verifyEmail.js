@@ -1,5 +1,4 @@
-import User from "../models/User.js";
-import SecreteCode from "../models/SecreteCode.js";
+import { User, SecreteCode } from "../models/index.js";
 
 async function verifyEmail(req, res) {
   const { userId, secreteCode } = req.params;

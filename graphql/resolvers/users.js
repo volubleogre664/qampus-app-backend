@@ -1,18 +1,11 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import pkg from "apollo-server";
-// import { UserInputError } from "apollo-server";
 const { UserInputError } = pkg;
 
-import {
-  validateLoginInput,
-  validateRegisterInput,
-} from "../../utils/validators.js";
-import User from "../../models/User.js";
-import SecreteCode from "../../models/SecreteCode.js";
-import { SECRET_KEY } from "../../config.js";
-import sendEmail from "../../utils/sendEmail.js";
-import checkAuth from "../../utils/checkAuth.js";
+import { User, SecreteCode } from "../../models/index";
+import { validators, checkAuth, sendEmail } from "../../utils/index.js";
+const { validateLoginInput, validateRegisterInput } = validators;
 
 function generateToken(user) {
   return jwt.sign(
@@ -26,7 +19,7 @@ function generateToken(user) {
       degree: user.degree,
       bio: user.bio,
     },
-    SECRET_KEY,
+    process.env.SECRET_KEY,
     { expiresIn: "12h" }
   );
 }

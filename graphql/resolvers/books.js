@@ -1,9 +1,7 @@
 import pkg from "apollo-server";
-// import { UserInputError } from "apollo-server";
 const { UserInputError } = pkg;
-import Book from "../../models/Book.js";
-import checkAuth from "../../utils/checkAuth.js";
-import { validateBookInput } from "../../utils/validators.js";
+import { Book } from "../../models/index.js";
+import { checkAuth, validateBookInput } from "../../utils/index.js";
 
 const bookResolvers = {
   Mutation: {

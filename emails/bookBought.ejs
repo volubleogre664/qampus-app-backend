@@ -14,7 +14,11 @@
   </head>
   <body>
     <header>
-      <img class="logo" src="https://qampus.co.za/static/media/logo.a9b2e481.png" alt="qampus">
+      <img
+        class="logo"
+        src="https://firebasestorage.googleapis.com/v0/b/qampus-app.appspot.com/o/QampusLogoOutlined%20(2).png?alt=media&token=dcbf7562-983f-4f96-925a-5776b1630d64"
+        alt="qampus"
+      />
     </header>
     <section>
       <div class="book">
@@ -25,9 +29,9 @@
             class="book__image"
             src="<%= book?.frontCover %>"
             alt="<%= book?.title %>"
-          >
+          />
         </div>
-  
+
         <!-- Book footer | part with delete and edit button -->
         <div class="book__footer">
           <div class="book__footerLeft">
@@ -36,11 +40,15 @@
           </div>
         </div>
       </div>
-  
+
       <div class="textSection">
-        <h4>Hi <%= seller.firstName %> </h4>
-        <p><%= [buyer.firstName, buyer.lastName].join(" ") %> has shown an interest in your book. View their message and arrange with them the exchange.</p>
-  
+        <h4>Hi <%= seller.firstName %></h4>
+        <p>
+          <%= [buyer.firstName, buyer.lastName].join(" ") %> has shown an
+          interest in your book. View their message and arrange with them the
+          exchange.
+        </p>
+
         <a href="https://qampus.co.za/chats">Contact <%= buyer.firstName %></a>
       </div>
     </section>

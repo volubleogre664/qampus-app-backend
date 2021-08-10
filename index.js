@@ -49,12 +49,11 @@ const server = new ApolloServer({
 
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.user;
-  USERS.setUser = { userId, socketId: socket.id };
 
   socket.join(userId);
 
   socket.on("disconnect", () => {
-    USERS.deleteUser(userId, socket.id);
+    socket.leave(userId);
   });
 });
 

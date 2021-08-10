@@ -7,7 +7,7 @@ import { User, SecreteCode } from "../../models/index.js";
 import { validators, checkAuth, sendEmail } from "../../utils/index.js";
 const { validateLoginInput, validateRegisterInput } = validators;
 
-const SECRET_KEY = process.env.SECRET_KEY;
+const SECRET_KEY = process.env.SECRET_KEY || "QampusAppWelcomeToTheNewEra_";
 
 function generateToken(user) {
   return jwt.sign(

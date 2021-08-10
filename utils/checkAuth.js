@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import pkg from "apollo-server";
 const { AuthenticationError } = pkg;
 
-const SECRET_KEY = process.env.SECRET_KEY;
+const SECRET_KEY = process.env.SECRET_KEY || "QampusAppWelcomeToTheNewEra_";
 
 export default function checkAuth(context) {
   const authHeader = context.req.headers.authorization;

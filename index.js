@@ -15,7 +15,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 const URL = process.env.SERVER_URL;
 
 const corsOptions = {
@@ -30,13 +30,6 @@ app.get(
   verifySSL
 );
 
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  cors: {
-    origin: "*",
-  },
-});
-
 const server = new ApolloServer({
   schema,
   context: ({ req }) => ({ req, io }),
@@ -46,6 +39,13 @@ const server = new ApolloServer({
   await server.start();
   server.applyMiddleware({ app, cors: corsOptions });
 })();
+
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+  },
+});
 
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.user;

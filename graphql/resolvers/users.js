@@ -7,6 +7,8 @@ import { User, SecreteCode } from "../../models/index.js";
 import { validators, checkAuth, sendEmail } from "../../utils/index.js";
 const { validateLoginInput, validateRegisterInput } = validators;
 
+const SECRET_KEY = process.env.SECRET_KEY;
+
 function generateToken(user) {
   return jwt.sign(
     {
@@ -19,7 +21,7 @@ function generateToken(user) {
       degree: user.degree,
       bio: user.bio,
     },
-    process.env.SECRET_KEY,
+    SECRET_KEY,
     { expiresIn: "12h" }
   );
 }

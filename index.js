@@ -11,14 +11,12 @@ import { MONGO_DB } from "./config.js";
 import typeDefs from "./graphql/typedefs.js";
 import resolvers from "./graphql/resolvers/index.js";
 import { verifyEmail, verifySSL } from "./routes/index.js";
-import { OnlineUsers } from "./utils/index.js";
 import dotenv from "dotenv";
 dotenv.config();
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const PORT = process.env.PORT || 5000;
 const URL = process.env.SERVER_URL;
-const USERS = new OnlineUsers();
 
 const corsOptions = {
   origin: process.env.CLIENT_URL,
@@ -41,7 +39,7 @@ const io = new Server(httpServer, {
 
 const server = new ApolloServer({
   schema,
-  context: ({ req }) => ({ req, io, USERS }),
+  context: ({ req }) => ({ req, io }),
 });
 
 (async () => {
@@ -52,6 +50,8 @@ const server = new ApolloServer({
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.user;
   USERS.setUser = { userId, socketId: socket.id };
+
+  socket.join(userId);
 
   socket.on("disconnect", () => {
     USERS.deleteUser(userId, socket.id);

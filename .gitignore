@@ -72,6 +72,8 @@ practice.js
 # Output of 'npm pack'
 *.tgz
 
+OnlineUsers.js
+
 # Yarn Integrity file
 .yarn-integrity
 

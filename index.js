@@ -7,8 +7,6 @@ import { makeExecutableSchema } from "@graphql-tools/schema";
 
 import mongoose from "mongoose";
 import express from "express";
-import path from "path";
-import fs from "fs";
 import { createServer } from "http";
 
 import { MONGO_DB } from "./config.js";
@@ -41,8 +39,10 @@ const server = new ApolloServer({
   context: ({ req }) => ({ req, pubsub }),
 });
 
-await server.start();
-server.applyMiddleware({ app, cors: corsOptions });
+(async () => {
+  await server.start();
+  server.applyMiddleware({ app, cors: corsOptions });
+})();
 
 const subscriptionServer = SubscriptionServer.create(
   { schema, execute, subscribe },
@@ -54,9 +54,9 @@ const subscriptionServer = SubscriptionServer.create(
 
 // Shut down in the case of interrupt and termination signals
 // We expect to handle this more cleanly in the future. See (#5074)[https://github.com/apollographql/apollo-server/issues/5074] for reference.
-// ["SIGINT", "SIGTERM"].forEach((signal) => {
-//   process.on(signal, () => subscriptionServer.close());
-// });
+["SIGINT", "SIGTERM"].forEach((signal) => {
+  process.on(signal, () => subscriptionServer.close());
+});
 
 mongoose
   .connect(MONGO_DB, {

@@ -3,7 +3,7 @@ import pkg from "apollo-server";
 const { AuthenticationError, UserInputError, withFilter } = pkg;
 
 import { Book, User, Message } from "../../models/index.js";
-import { sendEmail, pusher, checkAuth } from "../../utils/index.js";
+import { sendEmail, checkAuth } from "../../utils/index.js";
 
 const messageResolvers = {
   Query: {
@@ -165,7 +165,11 @@ const messageResolvers = {
 
         // This sends the message to receiver of the message
         // The message is sent to the receiver's client with event NEW_MESSAGE
-        pusher.trigger("messages", "NEW_MESSAGE", {
+        // pusher.trigger("messages", "NEW_MESSAGE", {
+        //   newMessage: { ...res._doc, id: res._id, book: bookObj },
+        // });
+
+        context.pubsub.publish("NEW_MESSAGE", {
           newMessage: { ...res._doc, id: res._id, book: bookObj },
         });
 
@@ -193,6 +197,7 @@ const messageResolvers = {
       subscribe: withFilter(
         (_, __, { pubsub }) => pubsub.asyncIterator("NEW_MESSAGE"),
         ({ newMessage: message }, variables) => {
+          console.log(variables);
           return variables.to === message.to && variables.to !== message.from;
         }
       ),

@@ -1,25 +1,24 @@
 import pkg from "apollo-server-express";
 const { ApolloServer } = pkg;
-import { PubSub } from "apollo-server";
-import { execute, subscribe } from "graphql";
-import { SubscriptionServer } from "subscriptions-transport-ws";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 
 import mongoose from "mongoose";
 import express from "express";
+import { Server } from "socket.io";
 import { createServer } from "http";
 
 import { MONGO_DB } from "./config.js";
 import typeDefs from "./graphql/typedefs.js";
 import resolvers from "./graphql/resolvers/index.js";
 import { verifyEmail, verifySSL } from "./routes/index.js";
+import { OnlineUsers } from "./utils/index.js";
 import dotenv from "dotenv";
 dotenv.config();
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
-const pubsub = new PubSub();
 const PORT = process.env.PORT || 5000;
 const URL = process.env.SERVER_URL;
+const USERS = new OnlineUsers();
 
 const corsOptions = {
   origin: process.env.CLIENT_URL,
@@ -34,9 +33,15 @@ app.get(
 );
 
 const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+  },
+});
+
 const server = new ApolloServer({
   schema,
-  context: ({ req }) => ({ req, pubsub }),
+  context: ({ req }) => ({ req, io, USERS }),
 });
 
 (async () => {
@@ -44,18 +49,13 @@ const server = new ApolloServer({
   server.applyMiddleware({ app, cors: corsOptions });
 })();
 
-const subscriptionServer = SubscriptionServer.create(
-  { schema, execute, subscribe },
-  {
-    server: httpServer,
-    path: "wss:://server.qampus.co.za" + server.graphqlPath + "/subscriptions",
-  }
-);
+io.on("connection", (socket) => {
+  const userId = socket.handshake.query.user;
+  USERS.setUser = { userId, socketId: socket.id };
 
-// Shut down in the case of interrupt and termination signals
-// We expect to handle this more cleanly in the future. See (#5074)[https://github.com/apollographql/apollo-server/issues/5074] for reference.
-["SIGINT", "SIGTERM"].forEach((signal) => {
-  process.on(signal, () => subscriptionServer.close());
+  socket.on("disconnect", () => {
+    USERS.deleteUser(userId, socket.id);
+  });
 });
 
 mongoose

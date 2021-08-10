@@ -91,6 +91,7 @@ const messageResolvers = {
     async addMessage(_, { to, textMsg, book }, context) {
       // Check user priviledge for doing this
       let user = checkAuth(context);
+      const { USERS, io } = context;
 
       try {
         // Get user data from database. toUser is message receiver
@@ -163,19 +164,16 @@ const messageResolvers = {
         // Save the message to the database
         const res = await message.save();
 
-        // This sends the message to receiver of the message
-        // The message is sent to the receiver's client with event NEW_MESSAGE
-        // pusher.trigger("messages", "NEW_MESSAGE", {
-        //   newMessage: { ...res._doc, id: res._id, book: bookObj },
-        // });
+        let socketIds = USERS.getUsers(to);
+        if (socketIds.length > 0) {
+          socketIds.socketId.forEach((id) => {
+            io.sockets.to(id).emit("NEW_MESSAGE", {
+              newMessage: { ...res._doc, id: res._id, book: bookObj },
+            });
+          });
+        }
 
-        context.pubsub.publish("NEW_MESSAGE", {
-          newMessage: { ...res._doc, id: res._id, book: bookObj },
-        });
-
-        // context.pubsub.publish("NEW_MESSAGE", {
-        //   newMessage: { ...res._doc, id: res._id, book: bookObj },
-        // });
+        console.log("this means emit ran");
 
         // Return message to the client side
         return {

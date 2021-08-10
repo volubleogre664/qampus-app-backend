@@ -1,6 +1,6 @@
 import pkg from "apollo-server-express";
 const { ApolloServer } = pkg;
-import { PubSub } from "graphql-subscriptions";
+import { PubSub } from "apollo-server";
 import { execute, subscribe } from "graphql";
 import { SubscriptionServer } from "subscriptions-transport-ws";
 import { makeExecutableSchema } from "@graphql-tools/schema";
@@ -48,7 +48,7 @@ const subscriptionServer = SubscriptionServer.create(
   { schema, execute, subscribe },
   {
     server: httpServer,
-    path: server.graphqlPath + "/subscriptions",
+    path: "wss:://server.qampus.co.za" + server.graphqlPath + "/subscriptions",
   }
 );
 

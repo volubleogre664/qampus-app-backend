@@ -10,6 +10,7 @@ const transport = nodemailer.createTransport(
 );
 
 function sendEmail(type, data) {
+  console.log(data);
   const fileTemplates = {
     BOOK_SALE: "/emails/bookBought.ejs",
     ACCOUNT_VERIFICATION: "/emails/verifyAccount.ejs",

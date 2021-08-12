@@ -1,9 +1,8 @@
 import { User, SecreteCode } from "../models/index.js";
 
 async function verifyEmail(req, res) {
-  console.log("At the chap works");
-
   const { userId, secretCode } = req.params;
+  console.log(userId, secretCode);
 
   const user = await User.findById(userId);
 

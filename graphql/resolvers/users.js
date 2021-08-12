@@ -139,12 +139,15 @@ const userResolvers = {
       };
       _user.contacts = [];
 
-      let secreteCode = await bcrypt.hash(
-        [_user.firstName, _user.lastName, _user.email].join("_"),
-        12
+      let secreteCode = jwt.sign(
+        {
+          firstName: _user.firstName,
+          lastName: _user.lastName,
+          email: _user.email,
+        },
+        SECRET_KEY,
+        { expiresIn: "12h" }
       );
-
-      secreteCode = secreteCode.replace(/\//g, "_");
       await new SecreteCode({
         email: _user.email,
         code: secreteCode,
@@ -154,7 +157,7 @@ const userResolvers = {
         firstName: _user.firstName,
         lastName: _user.lastName,
         email: _user.email,
-        verificationLink: `${process.env.SERVER_URL}/auth/verification/verify-email/${_user.id}/${secreteCode}`,
+        verificationLink: `https://${process.env.SERVER_URL}/auth/verification/verify-email/${_user.id}/${secreteCode}`,
       });
 
       return _user;

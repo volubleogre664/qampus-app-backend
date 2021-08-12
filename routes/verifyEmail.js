@@ -1,19 +1,21 @@
 import { User, SecreteCode } from "../models/index.js";
 
 async function verifyEmail(req, res) {
-  const { userId, secreteCode } = req.params;
+  console.log("At the chap works");
+
+  const { userId, secretCode } = req.params;
 
   const user = await User.findById(userId);
 
   if (!user || user?.status !== "pending") {
     // Do something here or show the user something
-    return;
+    res.redirect(process.env.CLIENT_URL);
   }
 
   const secret = await SecreteCode.find({ email: user.email });
-  if (!secret || secreteCode !== secret.code) {
+  if (!secret || secretCode !== secret.code) {
     // Do something like show the user some error or something
-    return;
+    res.redirect(process.env.CLIENT_URL);
   }
 
   user.status = "confirmed";

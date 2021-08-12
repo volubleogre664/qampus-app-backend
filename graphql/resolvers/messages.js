@@ -121,7 +121,7 @@ const messageResolvers = {
         const message = new Message(msgObject);
 
         // Find the check if two people are connected and update their data accordingly
-        updateUserContacts(user, toUser);
+        updateUserContacts(user, toUser, io);
 
         // Save the message to the database
 
@@ -169,8 +169,6 @@ const messageResolvers = {
           newMessage: { ...res._doc, id: res._id, book: bookObj },
         });
 
-        console.log("this means emit ran");
-
         // Return message to the client side
         return {
           ...res._doc,
@@ -200,7 +198,7 @@ const messageResolvers = {
 };
 
 // Connect both users by adding their contacts to each other
-async function updateUserContacts(user, toUser) {
+async function updateUserContacts(user, toUser, io) {
   if (!user.contacts.includes(toUser.id)) {
     user.contacts.push(toUser.id);
     await user.save();
@@ -208,6 +206,14 @@ async function updateUserContacts(user, toUser) {
 
   if (!toUser.contacts.includes(user.id)) {
     toUser.contacts.push(user.id);
+    io.to(toUser.id).emit("USER_CONTACT_UPDATE", {
+      contact: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        picture: user.picture,
+      },
+    });
 
     await toUser.save();
   }

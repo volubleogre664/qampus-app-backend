@@ -2,6 +2,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import pkg from "apollo-server";
 const { UserInputError } = pkg;
+import dotenv from "dotenv";
+dotenv.config();
 
 import { User, SecreteCode } from "../../models/index.js";
 import { validators, checkAuth, sendEmail } from "../../utils/index.js";

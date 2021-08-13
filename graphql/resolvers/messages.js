@@ -100,7 +100,6 @@ const messageResolvers = {
         const toUser = await User.findById(to);
         user = await User.findById(user.id);
 
-        // console.log(toUser);
         // If toUser does not exist then throw error that user does not exist
         if (!toUser) {
           throw new UserInputError(
@@ -189,7 +188,6 @@ const messageResolvers = {
       subscribe: withFilter(
         (_, __, { pubsub }) => pubsub.asyncIterator("NEW_MESSAGE"),
         ({ newMessage: message }, variables) => {
-          console.log(variables);
           return variables.to === message.to && variables.to !== message.from;
         }
       ),

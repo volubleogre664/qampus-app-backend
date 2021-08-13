@@ -41,7 +41,6 @@ const validateRegisterInput = (
 };
 
 const validateLoginInput = (studentNumber, password) => {
-  //   console.log(typeof username, password);
   const errors = {};
 
   if (studentNumber.length !== 10) {

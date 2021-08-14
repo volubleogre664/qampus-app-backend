@@ -30,43 +30,72 @@ function generateToken(user) {
 
 const userResolvers = {
   Mutation: {
-    async login(_, { studentNumber, password }) {
-      const { errors, valid } = validateLoginInput(studentNumber, password);
+    async login(_, { studentNumber, password }, context) {
+      const { user } = await context.authenticate("graphql-local", {
+        username: studentNumber,
+        password,
+      });
 
-      // Check for any input errors after validating them
-      if (!valid) {
-        throw new UserInputError("Errors", { errors });
-      }
+      context.login(user);
 
-      // Find the user from database
-      const user = await User.findOne({ studentNumber });
+      const contacts = await User.find(
+        { _id: { $in: user.contacts } },
+        { firstName: 1, lastName: 1, picture: 1, studentNumber: 1 }
+      );
 
-      // If user is null then no user is found then return user not found
-      if (!user) {
-        errors.general = "User not found";
-        throw new UserInputError("User not found", { errors });
-      }
+      // console.log(contacts);
 
-      // Match passwords and throw user input errors if they're wrong
-      const match = await bcrypt.compare(password, user.password);
-      if (!match) {
-        errors.general = "Wrong Credentials";
-        throw new UserInputError("Wrong Credentials", { errors });
-      }
-
-      // Getting all the contacts fo the user if there are any
-      let contacts = await User.find({ _id: { $in: user.contacts } });
-
-      // Generate the JWT token for user's authetication
-      const token = generateToken(user);
-
-      // Return the final result
       return {
-        ...user._doc,
-        id: user.id,
-        contacts: contacts,
-        token,
+        ...user,
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        studentNumber: user.studentNumber,
+        picture: user.picture,
+        bio: user.bio,
+        degree: user.degree,
+        contacts,
       };
+      // const { errors, valid } = validateLoginInput(studentNumber, password);
+
+      // // Check for any input errors after validating them
+      // if (!valid) {
+      //   throw new UserInputError("Errors", { errors });
+      // }
+
+      // // Find the user from database
+      // const user = await User.findOne({ studentNumber });
+
+      // // If user is null then no user is found then return user not found
+      // if (!user) {
+      //   errors.general = "User not found";
+      //   throw new UserInputError("User not found", { errors });
+      // }
+
+      // // Match passwords and throw user input errors if they're wrong
+      // const match = await bcrypt.compare(password, user.password);
+      // if (!match) {
+      //   errors.general = "Wrong Credentials";
+      //   throw new UserInputError("Wrong Credentials", { errors });
+      // }
+
+      // // Getting all the contacts fo the user if there are any
+      // let contacts = await User.find(
+      //   { _id: { $in: user.contacts } },
+      //   { firstName: 1, lastName: 1, picture: 1 }
+      // );
+
+      // // Generate the JWT token for user's authetication
+      // const token = generateToken(user);
+
+      // // Return the final result
+      // return {
+      //   ...user._doc,
+      //   id: user.id,
+      //   contacts: contacts,
+      //   token,
+      // };
     },
 
     //Registering a user

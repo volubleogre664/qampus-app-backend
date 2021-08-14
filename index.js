@@ -6,6 +6,10 @@ import mongoose from "mongoose";
 import express from "express";
 import { Server } from "socket.io";
 import { createServer } from "http";
+import session from "express-session";
+import MongoStore from "connect-mongo";
+import passport from "passport";
+import { buildContext } from "graphql-passport";
 
 import { MONGO_DB } from "./config.js";
 import typeDefs from "./graphql/typedefs.js";
@@ -19,20 +23,47 @@ const PORT = process.env.PORT;
 const URL = process.env.SERVER_URL;
 
 const corsOptions = {
-  origin: process.env.CLIENT_URL,
+  origin: "http://127.0.0.1:3000",
   credentials: true,
 };
 
 const app = express();
-app.get("/auth/verification/verify-email/:userId/:secreteCode", verifyEmail);
-app.get(
-  "/.well-known/acme-challenge/LqLTlFHkdOHfdUUtdJ9xYK9ij2Ne7b4wBAY73dBrVZc",
-  verifySSL
+
+app.use(
+  session({
+    secret: process.env.MONGO_STORE_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_SESSION_STORE_URL,
+      collectionName: "sessions",
+      mongoOptions: {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      },
+    }),
+    cookie: {
+      maxAge: 60 * 60 * 24 * 2 * 1000, // Max age for the cookie is set to 2 days
+      sameSite: "none",
+      secure: "auto",
+      path: "/graphql",
+      domain: "none",
+    },
+  })
 );
+
+import "./utils/passport.js";
+app.use(passport.initialize());
+app.use(passport.session());
 
 const server = new ApolloServer({
   schema,
-  context: ({ req }) => ({ req, io }),
+  context: ({ req, res }) =>
+    buildContext({
+      req,
+      res,
+      io,
+    }),
 });
 
 (async () => {
@@ -56,6 +87,12 @@ io.on("connection", (socket) => {
     socket.leave(userId);
   });
 });
+
+app.get("/auth/verification/verify-email/:userId/:secreteCode", verifyEmail);
+app.get(
+  "/.well-known/acme-challenge/LqLTlFHkdOHfdUUtdJ9xYK9ij2Ne7b4wBAY73dBrVZc",
+  verifySSL
+);
 
 mongoose
   .connect(MONGO_DB, {

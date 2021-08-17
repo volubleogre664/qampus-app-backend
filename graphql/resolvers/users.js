@@ -36,14 +36,16 @@ const userResolvers = {
         password,
       });
 
-      context.login(user);
+      context.login(user, (err) => {
+        console.log("An error occured: ", err);
+      });
 
       const contacts = await User.find(
         { _id: { $in: user.contacts } },
         { firstName: 1, lastName: 1, picture: 1, studentNumber: 1 }
       );
 
-      // console.log(contacts);
+      console.log(context.session);
 
       return {
         ...user,

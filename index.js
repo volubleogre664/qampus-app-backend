@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import express from "express";
 import { Server } from "socket.io";
 import { createServer } from "http";
+import cookieParser from "cookie-parser";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import passport from "passport";
@@ -23,12 +24,16 @@ const PORT = process.env.PORT;
 const URL = process.env.SERVER_URL;
 
 const corsOptions = {
-  origin: "http://127.0.0.1:3000",
+  origin: "https://studio.apollographql.com",
   credentials: true,
 };
 
-const app = express();
+import "./utils/passport.js";
 
+const app = express();
+const httpServer = createServer(app);
+
+app.use(cookieParser());
 app.use(
   session({
     secret: process.env.MONGO_STORE_SECRET,
@@ -52,7 +57,6 @@ app.use(
   })
 );
 
-import "./utils/passport.js";
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -71,22 +75,21 @@ const server = new ApolloServer({
   server.applyMiddleware({ app, cors: corsOptions });
 })();
 
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  cors: {
-    origin: "*",
-  },
-});
+// const io = new Server(httpServer, {
+//   cors: {
+//     origin: "*",
+//   },
+// });
 
-io.on("connection", (socket) => {
-  const userId = socket.handshake.query.user;
+// io.on("connection", (socket) => {
+//   const userId = socket.handshake.query.user;
 
-  socket.join(userId);
+//   socket.join(userId);
 
-  socket.on("disconnect", () => {
-    socket.leave(userId);
-  });
-});
+//   socket.on("disconnect", () => {
+//     socket.leave(userId);
+//   });
+// });
 
 app.get("/auth/verification/verify-email/:userId/:secreteCode", verifyEmail);
 app.get(

@@ -3,11 +3,6 @@ import { GraphQLLocalStrategy } from "graphql-passport";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 
-const customFields = {
-  usernameField: "studentNumber",
-  passwordField: "password",
-};
-
 const loginUser = async (username, password, done) => {
   try {
     const user = await User.findOne({ studentNumber: username });
@@ -30,7 +25,7 @@ const loginUser = async (username, password, done) => {
   }
 };
 
-const localStrategy = new GraphQLLocalStrategy(customFields, loginUser);
+const localStrategy = new GraphQLLocalStrategy(loginUser);
 
 passport.use(localStrategy);
 

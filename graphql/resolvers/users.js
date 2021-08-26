@@ -1,36 +1,26 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import pkg from "apollo-server";
+import pkg, { ForbiddenError } from "apollo-server";
 const { UserInputError } = pkg;
+import { randomUUID } from "crypto";
 import dotenv from "dotenv";
 dotenv.config();
 
 import { User, SecreteCode } from "../../models/index.js";
-import { validators, checkAuth, sendEmail } from "../../utils/index.js";
+import { validators, sendEmail } from "../../utils/index.js";
 const { validateLoginInput, validateRegisterInput } = validators;
 
-const SECRET_KEY = process.env.SECRET_KEY || "QampusAppWelcomeToTheNewEra_";
-
-function generateToken(user) {
-  return jwt.sign(
-    {
-      id: user.id,
-      studentNumber: user.studentNumber,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      picture: user.picture,
-      degree: user.degree,
-      bio: user.bio,
-    },
-    SECRET_KEY,
-    { expiresIn: "12h" }
-  );
+async function generateToken(sub, payload) {
+  return await jwt.sign(payload, process.env.TOKEN_SECRET_KEY, {
+    algorithm: "HS256",
+    subject: sub,
+    expiresIn: "2d",
+  });
 }
 
 const userResolvers = {
   Mutation: {
-    async login(_, { studentNumber, password }) {
+    async login(_, { studentNumber, password }, { req }) {
       const { errors, valid } = validateLoginInput(studentNumber, password);
 
       // Check for any input errors after validating them
@@ -58,7 +48,16 @@ const userResolvers = {
       let contacts = await User.find({ _id: { $in: user.contacts } });
 
       // Generate the JWT token for user's authetication
-      const token = generateToken(user);
+      // Create JWT payload section here mate
+      const jwtPayload = {
+        roles: "user",
+        permissions: [
+          "read:public_content",
+          "read:own_content",
+          "write:own_content",
+        ],
+      };
+      const token = generateToken(user.id, jwtPayload);
 
       // Return the final result
       return {
@@ -131,7 +130,15 @@ const userResolvers = {
       const res = await newUser.save();
 
       // Generate the JWT token for the user's authentication
-      const token = generateToken(res);
+      const jwtPayload = {
+        roles: "user",
+        permissions: [
+          "read:related_content",
+          "read:own_content",
+          "write:own_content",
+        ],
+      };
+      const token = generateToken(res._id, jwtPayload);
 
       // Return all the info back to the client
       const _user = {
@@ -164,14 +171,18 @@ const userResolvers = {
 
       return _user;
     },
-    async updateUser(_, { updateInput }, context) {
+    async updateUser(_, { updateInput }, { req }) {
       // Check if user has priviledges for editing the account
-      const user = checkAuth(context);
+      if (!req.user) {
+        throw new ForbiddenError("Not Authorized", {
+          error: "not_auth",
+        });
+      }
 
       // Create new user object from database
       // In SQL
       // SELECT * FROM User WHERE id = <user.id>
-      const updatedUser = await User.findById(user.id);
+      const updatedUser = await User.findById(req.user.sub);
 
       // TODO: Come back and here work out the update user with and without the password
       // Check if passwords match before doing anything
@@ -222,28 +233,24 @@ const userResolvers = {
     },
   },
   Query: {
-    async getUserData(_, { studentNumber }) {
+    async getUserData(_, { id }) {
       // Given the student number, find the user data and return minimal data
       try {
         // In SQL
         // SELECT id, firstName, lastName, studentNumber, picture
-        //    FROM User WHERE studentNumber = <studentNumber>;
-        const user = await User.findOne(
-          { studentNumber },
-          { firstName: 1, lastName: 1, studentNumber: 1, picture: 1 }
-        );
+        //    FROM User WHERE id = <id>;
+        const user = await User.findById(id, {
+          firstName: 1,
+          lastName: 1,
+          studentNumber: 1,
+          picture: 1,
+        });
 
         // Return the user to client
         return user;
       } catch (err) {
         throw new Error("No user found");
       }
-    },
-  },
-
-  Subscription: {
-    userUpdated: {
-      subscribe: (_, __, { pubsub }) => pubsub.asyncIterator("USER_UPDATED"),
     },
   },
 };

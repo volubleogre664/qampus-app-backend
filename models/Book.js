@@ -4,12 +4,10 @@ const { model, Schema } = mongoose;
 const bookSchema = new Schema({
   isbn: String,
   title: String,
-  subtitle: String,
   authors: String,
   price: Number,
-  description: String,
   moduleCode: String,
-  studentNumber: String,
+  bookOwner: Schema.Types.ObjectId,
   frontCover: String,
   bookBuyers: [Schema.Types.ObjectId],
   isBought: {

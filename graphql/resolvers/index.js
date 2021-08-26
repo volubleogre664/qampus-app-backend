@@ -13,8 +13,4 @@ export default {
     ...bookResolvers.Mutation,
     ...messageResolvers.Mutation,
   },
-  Subscription: {
-    ...messageResolvers.Subscription,
-    ...userResolvers.Subscription,
-  },
 };

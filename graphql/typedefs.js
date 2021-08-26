@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import { gql } from "apollo-server-express";
 
 export default gql`
   type User {
@@ -23,7 +23,7 @@ export default gql`
     price: Float!
     description: String
     moduleCode: String
-    studentNumber: String!
+    bookOwner: ID!
     frontCover: String
     backCover: String
   }
@@ -35,11 +35,6 @@ export default gql`
     to: String!
     textMsg: String!
     book: Book
-  }
-
-  type BookTitle {
-    id: ID!
-    title: String!
   }
 
   input RegisterInput {
@@ -59,7 +54,6 @@ export default gql`
     authors: String
     price: Float!
     description: String
-    studentNumber: String!
     frontCover: String
     backCover: String
   }
@@ -77,10 +71,9 @@ export default gql`
   }
 
   type Query {
-    getUserData(studentNumber: String!): User!
+    getUserData(id: ID!): User!
     getBook(bookId: ID!): Book!
-    getBooks(studentNumber: String!): [Book]
-    getBookTitles: [BookTitle]
+    getBooks(bookOwner: ID!): [Book]
     getMessages(to: ID!, from: ID!, messagesLength: Float!): [Message]
   }
 
@@ -93,10 +86,5 @@ export default gql`
     searchBook(searchStr: String!): [Book]
     editBook(bookId: ID!, price: Float!, isBought: Boolean): Book!
     addMessage(to: ID!, textMsg: String!, book: ID): Message!
-  }
-
-  type Subscription {
-    newMessage(to: ID!): Message!
-    userUpdated(id: ID!): User!
   }
 `;

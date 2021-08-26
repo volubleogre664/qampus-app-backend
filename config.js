@@ -4,3 +4,8 @@ export const MONGO_DB =
 
 // export const MONGO_DB = "mongodb://localhost:27017/qampus-db";
 export const SECRET_KEY = "**QampusApp**Welcome to the new era";
+
+export const permissions = {
+  read: ["public_content", "own_content", "related_content"],
+  write: ["own_content", "new_content"],
+};

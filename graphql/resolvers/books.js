@@ -1,14 +1,18 @@
 import pkg from "apollo-server";
+import { ForbiddenError } from "apollo-server-express";
 const { UserInputError } = pkg;
 import { Book } from "../../models/index.js";
-import { checkAuth, validators } from "../../utils/index.js";
+import { validators } from "../../utils/index.js";
 const { validateBookInput } = validators;
 
 const bookResolvers = {
   Mutation: {
-    async uploadBook(_, { bookInput }, context) {
-      // Confirm the current logged in user
-      const user = checkAuth(context);
+    async uploadBook(_, { bookInput }, { req }) {
+      if (!req.user) {
+        throw new ForbiddenError("Not Authorized", {
+          error: "not_auth",
+        });
+      }
 
       // Validate the Book data sent
       const { errors, valid } = validateBookInput(bookInput);
@@ -19,13 +23,6 @@ const bookResolvers = {
       }
 
       // Check if the logged in user is the owner of the book  being uploaded
-      if (bookInput.studentNumber !== user.studentNumber) {
-        throw new UserInputError("Action not allowed", {
-          errors: {
-            studentNumber: "Cannot add book with another student Number",
-          },
-        });
-      }
 
       // Check if user does not have this book already uploaded
       // In SQL
@@ -52,14 +49,11 @@ const bookResolvers = {
       const newBook = new Book({
         isbn: bookInput.isbn,
         title: bookInput.title,
-        subtitle: bookInput.subtitle || "",
         authors: bookInput.authors,
         price: bookInput.price,
-        description: bookInput.description || "",
         moduleCode: bookInput.moduleCode || "",
-        studentNumber: bookInput.studentNumber,
+        bookOwner: req.user.sub,
         frontCover: bookInput.frontCover || "",
-        backCover: bookInput.backCover || "",
       });
 
       // Save the book to database
@@ -69,9 +63,12 @@ const bookResolvers = {
       return res;
     },
 
-    async deleteBook(_, { bookId }, context) {
-      // Confirm the logged in user
-      const user = checkAuth(context);
+    async deleteBook(_, { bookId }, { req }) {
+      if (!req.user) {
+        throw new ForbiddenError("Not Authorized", {
+          error: "not_auth",
+        });
+      }
 
       try {
         // Find the book to delete based with ID
@@ -87,7 +84,7 @@ const bookResolvers = {
         }
 
         // If user does not own the found book throw error
-        if (user.studentNumber !== book.studentNumber) {
+        if (req.user.sub !== book.bookOwner) {
           throw new Error("An error occured while deleting book", {
             errors: {
               book: "Cannot delete book a you do not own",
@@ -107,12 +104,15 @@ const bookResolvers = {
       }
     },
 
-    async editBook(_, { bookId, price, isBought }, context) {
-      checkAuth(context);
-
+    async editBook(_, { bookId, price, isBought }, { req }) {
       // NOTE: Add some code to make sure that everyone who wants
       // this book is notified that this book has been sold,
       // Still need to find a way to actually do that
+      if (!req.user.sub) {
+        throw new ForbiddenError("Not Authorized", {
+          error: "not_auth",
+        });
+      }
 
       try {
         const book = await Book.findById(bookId);
@@ -139,25 +139,35 @@ const bookResolvers = {
 
     async searchBook(_, { searchStr }) {
       try {
-        // const query = {
-        //   $text: { $search: searchStr },
-        // };
-
-        const res = await Book.aggregate([
-          {
-            $search: {
-              text: {
-                query: searchStr,
-                path: ["title", "isbn", "moduleCode"],
+        let res;
+        if (searchStr === "") {
+          res = await Book.find({}).limit(10);
+        } else {
+          res = await Book.aggregate([
+            {
+              $search: {
+                text: {
+                  query: searchStr,
+                  path: ["title", "isbn", "moduleCode"],
+                },
               },
             },
-          },
-          {
-            $limit: 10,
-          },
-        ]);
+            {
+              $limit: 10,
+            },
+          ]);
+        }
 
-        return res.map((book) => ({ id: book._id, ...book }));
+        return res.map((book) => ({
+          id: book._id,
+          isbn: book.isbn,
+          title: book.title,
+          price: book.price,
+          bookOwner: book.bookOwner,
+          moduleCode: book.moduleCode,
+          authors: book.authors,
+          frontCover: book.frontCover,
+        }));
       } catch (err) {
         throw new Error("Failed to search for the books");
       }
@@ -183,25 +193,13 @@ const bookResolvers = {
       }
     },
 
-    async getBooks(_, { studentNumber }) {
+    async getBooks(_, { bookOwner }) {
       try {
-        const books = await Book.find({ studentNumber });
+        const books = await Book.find({ bookOwner });
 
         return books;
       } catch (err) {
         throw new Error("An error occured while getting the books", {
-          errors: err,
-        });
-      }
-    },
-
-    async getBookTitles() {
-      try {
-        const bookTitles = await Book.find({}, { title: 1 });
-
-        return bookTitles;
-      } catch (err) {
-        throw new Error("Could not find the book titles", {
           errors: err,
         });
       }

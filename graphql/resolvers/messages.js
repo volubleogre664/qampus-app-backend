@@ -1,21 +1,16 @@
 import dayjs from "dayjs";
-import pkg from "apollo-server";
-const { AuthenticationError, UserInputError, withFilter } = pkg;
+import { ForbiddenError, UserInputError } from "apollo-server-express";
 
 import { Book, User, Message } from "../../models/index.js";
-import { sendEmail, checkAuth } from "../../utils/index.js";
+import { sendEmail } from "../../utils/index.js";
 
 const messageResolvers = {
   Query: {
-    async getMessages(_, { to, from, messagesLength }, context) {
-      const user = checkAuth(context);
-
+    async getMessages(_, { to, from, messagesLength }, { req }) {
       try {
-        if (from !== user.id) {
-          throw new AuthenticationError("Cannot get other users messages", {
-            errors: {
-              user: "Cannot query data you don't own",
-            },
+        if (from !== req.user.sub) {
+          throw new ForbiddenError("Not Authorized", {
+            errors: "not_auth",
           });
         }
 
@@ -88,17 +83,19 @@ const messageResolvers = {
     },
   },
   Mutation: {
-    async addMessage(_, { to, textMsg, book }, context) {
-      // Check user priviledge for doing this
-      let user = checkAuth(context);
-      const { io } = context;
+    async addMessage(_, { to, textMsg, book }, { req, io }) {
+      if (!req.user) {
+        throw new ForbiddenError("Not Authorized", {
+          error: "not_auth",
+        });
+      }
 
       try {
         // Get user data from database. toUser is message receiver
         // In SQL
         // SELECT * FROM User WHERE User.id = (to | user.id) -> For both user and toUser
         const toUser = await User.findById(to);
-        user = await User.findById(user.id);
+        const user = await User.findById(req.user.sub);
 
         // If toUser does not exist then throw error that user does not exist
         if (!toUser) {
@@ -179,18 +176,6 @@ const messageResolvers = {
           errors: err,
         });
       }
-    },
-  },
-  Subscription: {
-    newMessage: {
-      // Where data is sent in Realtime to the client of the message Receiver
-      // Makes sure the message is only sent to the required client and not everyone
-      subscribe: withFilter(
-        (_, __, { pubsub }) => pubsub.asyncIterator("NEW_MESSAGE"),
-        ({ newMessage: message }, variables) => {
-          return variables.to === message.to && variables.to !== message.from;
-        }
-      ),
     },
   },
 };

@@ -3,6 +3,7 @@ import { makeExecutableSchema } from "@graphql-tools/schema";
 import mongoose from "mongoose";
 import express from "express";
 import jwt from "jsonwebtoken";
+import cors from "cors";
 import { Server } from "socket.io";
 import { createServer } from "http";
 
@@ -26,6 +27,7 @@ const corsOptions = {
 
 // Make an express app and apply the appropriate middlewares
 const app = express();
+app.use(cors(corsOptions));
 // This middleware intercepts a token and try to get the user data from it
 // If token is null it simply makes the default guest user
 app.use((req, res, next) => {

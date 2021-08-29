@@ -12,7 +12,8 @@ const typeDefs = require("./graphql/typedefs.js");
 const resolvers = require("./graphql/resolvers/index.js");
 const { verifyEmail } = require("./routes/index.js");
 
-require("dotenv").config();
+const dotenv = require("dotenv");
+dotenv.config();
 
 // Setup some constants for the server
 const schema = makeExecutableSchema({ typeDefs, resolvers });

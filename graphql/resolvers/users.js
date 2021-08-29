@@ -1,14 +1,14 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import pkg, { ForbiddenError } from "apollo-server";
-const { UserInputError } = pkg;
-import { randomUUID } from "crypto";
-import dotenv from "dotenv";
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { ForbiddenError, UserInputError } = require("apollo-server-express");
+const dotenv = require("dotenv");
 dotenv.config();
 
-import { User, SecreteCode } from "../../models/index.js";
-import { validators, sendEmail } from "../../utils/index.js";
-const { validateLoginInput, validateRegisterInput } = validators;
+const { User, SecreteCode } = require("../../models/index.js");
+const {
+  validators: { validateLoginInput, validateRegisterInput },
+  sendEmail,
+} = require("../../utils/index.js");
 
 async function generateToken(sub, payload) {
   return await jwt.sign(payload, process.env.TOKEN_SECRET_KEY, {
@@ -255,4 +255,4 @@ const userResolvers = {
   },
 };
 
-export default userResolvers;
+module.exports = userResolvers;

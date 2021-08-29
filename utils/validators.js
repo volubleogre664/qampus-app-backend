@@ -101,7 +101,7 @@ const validateUpdateInput = ({ password, newPassword, confirmNewPassword }) => {
   return { errors, valid: Object.keys(errors).length < 1 };
 };
 
-export {
+module.exports = {
   validateLoginInput,
   validateRegisterInput,
   validateBookInput,

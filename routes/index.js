@@ -1,4 +1,4 @@
-import verifyEmail from "./verifyEmail.js";
-import verifySSL from "./verifySSL.js";
+const verifyEmail = require("./verifyEmail.js");
+const verifySSL = require("./verifySSL.js");
 
-export { verifyEmail, verifySSL };
+module.exports = { verifyEmail, verifySSL };

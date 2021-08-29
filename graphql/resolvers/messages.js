@@ -1,8 +1,8 @@
-import dayjs from "dayjs";
-import { ForbiddenError, UserInputError } from "apollo-server-express";
+const dayjs = require("dayjs");
+const { ForbiddenError, UserInputError } = require("apollo-server-express");
 
-import { Book, User, Message } from "../../models/index.js";
-import { sendEmail } from "../../utils/index.js";
+const { Book, User, Message } = require("../../models/index.js");
+const { sendEmail } = require("../../utils/index.js");
 
 const messageResolvers = {
   Query: {
@@ -202,4 +202,4 @@ async function updateUserContacts(user, toUser, io) {
   }
 }
 
-export default messageResolvers;
+module.exports = messageResolvers;

@@ -1,7 +1,7 @@
-import nodemailer from "nodemailer";
-import sibTransport from "nodemailer-sendinblue-transport";
-import ejs from "ejs";
-import path from "path";
+const nodemailer = require("nodemailer");
+const sibTransport = require("nodemailer-sendinblue-transport");
+const ejs = require("ejs");
+const path = require("path");
 
 // const v3SibKey =
 //   "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";
@@ -56,4 +56,4 @@ function sendEmail(type, data) {
 //     "https://server.qampus.co.za/auth/verification/verify-email/6114eccb37b700001a849fde/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdE5hbWUiOiJKYWJ1IiwibGFzdE5hbWUiOiJadW5ndSIsImVtYWlsIjoibmR1ZHV6b3M4MjBAZ21haWwuY29tIiwiaWF0IjoxNjI4NzYxMjkxLCJleHAiOjE2Mjg4MDQ0OTF9.eEeusQxQFaQNrLC_RYgRuvo5ntsrkttB5u1Nf9fMevE",
 // });
 
-export default sendEmail;
+module.exports = sendEmail;

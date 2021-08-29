@@ -1,5 +1,5 @@
-import path from "path";
+const path = require("path");
 
-export default function verifySSL(req, res) {
+module.exports = function verifySSL(req, res) {
   res.sendFile(path.resolve("./") + "/ssl-confirm.txt");
-}
+};

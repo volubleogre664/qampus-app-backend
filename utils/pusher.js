@@ -1,4 +1,4 @@
-import Pusher from "pusher";
+const Pusher = require("pusher");
 
 const pusher = new Pusher({
   appId: "1246971",
@@ -8,4 +8,4 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
-export default pusher;
+module.exports = pusher;

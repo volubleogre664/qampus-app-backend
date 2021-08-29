@@ -1,6 +1,6 @@
-import User from "./User.js";
-import Message from "./Message.js";
-import SecreteCode from "./SecreteCode.js";
-import Book from "./Book.js";
+const User = require("./User.js");
+const Message = require("./Message.js");
+const SecreteCode = require("./SecreteCode.js");
+const Book = require("./Book.js");
 
-export { User, Message, SecreteCode, Book };
+module.exports = { User, Message, SecreteCode, Book };

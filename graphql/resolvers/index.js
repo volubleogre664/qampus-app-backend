@@ -1,8 +1,8 @@
-import userResolvers from "./users.js";
-import bookResolvers from "./books.js";
-import messageResolvers from "./messages.js";
+const userResolvers = require("./users.js");
+const bookResolvers = require("./books.js");
+const messageResolvers = require("./messages.js");
 
-export default {
+module.exports = {
   Query: {
     ...bookResolvers.Query,
     ...messageResolvers.Query,

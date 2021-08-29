@@ -1,9 +1,6 @@
-import pkg from "apollo-server";
-import { ForbiddenError } from "apollo-server-express";
-const { UserInputError } = pkg;
-import { Book } from "../../models/index.js";
-import { validators } from "../../utils/index.js";
-const { validateBookInput } = validators;
+const { ForbiddenError, UserInputError } = require("apollo-server-express");
+const { Book } = require("../../models/index.js");
+const { validateBookInput } = require("../../utils/index.js").validators;
 
 const bookResolvers = {
   Mutation: {
@@ -207,4 +204,4 @@ const bookResolvers = {
   },
 };
 
-export default bookResolvers;
+module.exports = bookResolvers;

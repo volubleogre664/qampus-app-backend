@@ -1,18 +1,18 @@
-import { ApolloServer } from "apollo-server-express";
-import { makeExecutableSchema } from "@graphql-tools/schema";
-import mongoose from "mongoose";
-import express from "express";
-import jwt from "jsonwebtoken";
-import cors from "cors";
-import { Server } from "socket.io";
-import { createServer } from "http";
+const { ApolloServer } = require("apollo-server-express");
+const { makeExecutableSchema } = require("@graphql-tools/schema");
+const mongoose = require("mongoose");
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const cors = require("cors");
+const { Server } = require("socket.io");
+const { createServer } = require("http");
 
-import { MONGO_DB } from "./config.js";
-import typeDefs from "./graphql/typedefs.js";
-import resolvers from "./graphql/resolvers/index.js";
-import { verifyEmail } from "./routes/index.js";
-import dotenv from "dotenv";
-dotenv.config();
+const { MONGO_DB } = require("./config.js");
+const typeDefs = require("./graphql/typedefs.js");
+const resolvers = require("./graphql/resolvers/index.js");
+const { verifyEmail } = require("./routes/index.js");
+
+require("dotenv").config();
 
 // Setup some constants for the server
 const schema = makeExecutableSchema({ typeDefs, resolvers });

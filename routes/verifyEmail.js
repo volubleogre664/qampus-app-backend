@@ -1,4 +1,4 @@
-import { User, SecreteCode } from "../models/index.js";
+const { User, SecreteCode } = require("../models/index.js");
 
 async function verifyEmail(req, res) {
   const { userId, secretCode } = req.params;
@@ -23,4 +23,4 @@ async function verifyEmail(req, res) {
   res.redirect(process.env.CLIENT_URL);
 }
 
-export default verifyEmail;
+module.exports = verifyEmail;

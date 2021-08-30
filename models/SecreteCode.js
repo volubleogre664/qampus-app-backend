@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-const { model, Schema } = mongoose;
+const { model, Schema } = require("mongoose");
 
 const codeSchema = new Schema({
   email: { type: String, required: true },
@@ -7,4 +6,4 @@ const codeSchema = new Schema({
   createdAt: { type: Date, default: new Date() },
 });
 
-export default model("SecreteCode", codeSchema);
+module.exports = model("SecreteCode", codeSchema);

@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-const { model, Schema } = mongoose;
+const { model, Schema } = require("mongoose");
 
 const msgSchema = new Schema({
   to: Schema.Types.ObjectId,
@@ -16,4 +15,4 @@ const msgSchema = new Schema({
   },
 });
 
-export default model("Message", msgSchema);
+module.exports = model("Message", msgSchema);

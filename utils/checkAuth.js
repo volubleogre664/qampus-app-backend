@@ -1,10 +1,9 @@
-import jwt from "jsonwebtoken";
-import pkg from "apollo-server";
-const { AuthenticationError } = pkg;
+const jwt = require("jsonwebtoken");
+const { AuthenticationError } = require("apollo-server-express");
 
 const SECRET_KEY = process.env.SECRET_KEY || "QampusAppWelcomeToTheNewEra_";
 
-export default function checkAuth(context) {
+module.exports = function checkAuth(context) {
   const authHeader = context.req.headers.authorization;
 
   if (authHeader) {
@@ -21,4 +20,4 @@ export default function checkAuth(context) {
     throw new Error("Authentication token must be 'Bearer [token]'");
   }
   throw new Error("Authorization header must be provided");
-}
+};

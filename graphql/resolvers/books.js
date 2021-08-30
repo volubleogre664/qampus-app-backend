@@ -1,7 +1,6 @@
-import pkg from "apollo-server";
-const { UserInputError } = pkg;
-import { Book } from "../../models/index.js";
-import { checkAuth, validators } from "../../utils/index.js";
+const { UserInputError } = require("apollo-server-express");
+const { Book } = require("../../models/index.js");
+const { checkAuth, validators } = require("../../utils/index.js");
 const { validateBookInput } = validators;
 
 const bookResolvers = {
@@ -209,4 +208,4 @@ const bookResolvers = {
   },
 };
 
-export default bookResolvers;
+module.exports = bookResolvers;

@@ -1,23 +1,22 @@
-import pkg from "apollo-server-express";
-const { ApolloServer } = pkg;
-import { makeExecutableSchema } from "@graphql-tools/schema";
+const { ApolloServer } = require("apollo-server-express");
+const { makeExecutableSchema } = require("@graphql-tools/schema");
 
-import mongoose from "mongoose";
-import express from "express";
-import { Server } from "socket.io";
-import { createServer } from "http";
-import cookieParser from "cookie-parser";
-import session from "express-session";
-import MongoStore from "connect-mongo";
-import passport from "passport";
-import { buildContext } from "graphql-passport";
+const mongoose = require("mongoose");
+const express = require("express");
+const { Server } = require("socket.io");
+const { createServer } = require("http");
+const cookieParser = require("cookie-parser");
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
+const passport = require("passport");
+const { buildContext } = require("graphql-passport");
 
-import { MONGO_DB } from "./config.js";
-import typeDefs from "./graphql/typedefs.js";
-import resolvers from "./graphql/resolvers/index.js";
-import { verifyEmail, verifySSL } from "./routes/index.js";
-import dotenv from "dotenv";
-dotenv.config();
+const { MONGO_DB } = require("./config.js");
+const typeDefs = require("./graphql/typedefs.js");
+const resolvers = require("./graphql/resolvers/index.js");
+const { verifyEmail, verifySSL } = require("./routes/index.js");
+
+require("dotenv").config();
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const PORT = process.env.PORT;
@@ -28,7 +27,7 @@ const corsOptions = {
   credentials: true,
 };
 
-import "./utils/passport.js";
+require("./utils/passport.js");
 
 const app = express();
 const httpServer = createServer(app);

@@ -1,9 +1,11 @@
-import dayjs from "dayjs";
-import pkg from "apollo-server";
-const { AuthenticationError, UserInputError, withFilter } = pkg;
+const dayjs = require("dayjs");
+const {
+  AuthenticationError,
+  UserInputError,
+} = require("apollo-server-express");
 
-import { Book, User, Message } from "../../models/index.js";
-import { sendEmail, checkAuth } from "../../utils/index.js";
+const { Book, User, Message } = require("../../models/index.js");
+const { sendEmail, checkAuth } = require("../../utils/index.js");
 
 const messageResolvers = {
   Query: {
@@ -181,18 +183,18 @@ const messageResolvers = {
       }
     },
   },
-  Subscription: {
-    newMessage: {
-      // Where data is sent in Realtime to the client of the message Receiver
-      // Makes sure the message is only sent to the required client and not everyone
-      subscribe: withFilter(
-        (_, __, { pubsub }) => pubsub.asyncIterator("NEW_MESSAGE"),
-        ({ newMessage: message }, variables) => {
-          return variables.to === message.to && variables.to !== message.from;
-        }
-      ),
-    },
-  },
+  // Subscription: {
+  //   newMessage: {
+  //     // Where data is sent in Realtime to the client of the message Receiver
+  //     // Makes sure the message is only sent to the required client and not everyone
+  //     subscribe: withFilter(
+  //       (_, __, { pubsub }) => pubsub.asyncIterator("NEW_MESSAGE"),
+  //       ({ newMessage: message }, variables) => {
+  //         return variables.to === message.to && variables.to !== message.from;
+  //       }
+  //     ),
+  //   },
+  // },
 };
 
 // Connect both users by adding their contacts to each other
@@ -217,4 +219,4 @@ async function updateUserContacts(user, toUser, io) {
   }
 }
 
-export default messageResolvers;
+module.exports = messageResolvers;

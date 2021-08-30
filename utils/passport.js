@@ -1,7 +1,7 @@
-import passport from "passport";
-import { GraphQLLocalStrategy } from "graphql-passport";
-import bcrypt from "bcryptjs";
-import User from "../models/User.js";
+const passport = require("passport");
+const { GraphQLLocalStrategy } = require("graphql-passport");
+const bcrypt = require("bcryptjs");
+const User = require("../models/User.js");
 
 const loginUser = async (username, password, done) => {
   try {

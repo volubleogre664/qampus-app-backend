@@ -20,7 +20,7 @@ async function generateToken(sub, payload) {
 
 const userResolvers = {
   Mutation: {
-    async login(_, { studentNumber, password }, { req }) {
+    async login(_, { studentNumber, password }) {
       const { errors, valid } = validateLoginInput(studentNumber, password);
 
       // Check for any input errors after validating them

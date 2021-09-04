@@ -22,7 +22,7 @@ const URL = process.env.SERVER_URL;
 
 // Setup the cors options
 const corsOptions = {
-  origin: "https://qampus.co.za:3000",
+  origin: "https://qampus.co.za",
   credentials: true,
 };
 

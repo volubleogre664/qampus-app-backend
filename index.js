@@ -22,7 +22,7 @@ const URL = process.env.SERVER_URL;
 
 // Setup the cors options
 const corsOptions = {
-  origin: "https://qampus.co.za",
+  origin: "http://localhost:3000",
   credentials: true,
 };
 
@@ -43,7 +43,11 @@ app.use((req, res, next) => {
   if (!token) {
     user = undefined;
   } else {
-    user = jwt.verify(token, process.env.TOKEN_SECRET_KEY);
+    try {
+      user = jwt.verify(token, process.env.TOKEN_SECRET_KEY);
+    } catch (err) {
+      user = undefined;
+    }
   }
 
   req.user = user;
@@ -53,6 +57,15 @@ app.use((req, res, next) => {
 
 // The route for verifying a user email after creating an account
 app.get("/auth/verification/verify-email/:userId/:secreteCode", verifyEmail);
+
+// Make httpServer from the express app
+const httpServer = createServer(app);
+// Make a Socket IO server from the httpServer
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+  },
+});
 
 // Create the apollo-graphql server
 const server = new ApolloServer({
@@ -65,15 +78,6 @@ const server = new ApolloServer({
   await server.start();
   server.applyMiddleware({ app, cors: corsOptions });
 })();
-
-// Make httpServer from the express app
-const httpServer = createServer(app);
-// Make a Socket IO server from the httpServer
-const io = new Server(httpServer, {
-  cors: {
-    origin: "*",
-  },
-});
 
 // Initiate Socket IO global events namely -> connection and disconnect
 io.on("connection", (socket) => {

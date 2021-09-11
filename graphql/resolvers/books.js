@@ -28,7 +28,7 @@ const bookResolvers = {
       const bookExist = await Book.findOne(
         {
           isbn: bookInput.isbn,
-          studentNumber: bookInput.studentNumber,
+          bookOwner: req.user.sub,
         },
         { id: 1 }
       );
@@ -48,9 +48,9 @@ const bookResolvers = {
         title: bookInput.title,
         authors: bookInput.authors,
         price: bookInput.price,
-        moduleCode: bookInput.moduleCode || "",
+        moduleCode: bookInput.moduleCode,
         bookOwner: req.user.sub,
-        frontCover: bookInput.frontCover || "",
+        frontCover: bookInput.frontCover,
       });
 
       // Save the book to database
@@ -81,7 +81,7 @@ const bookResolvers = {
         }
 
         // If user does not own the found book throw error
-        if (req.user.sub !== book.bookOwner) {
+        if (req.user.sub != book?.bookOwner) {
           throw new Error("An error occured while deleting book", {
             errors: {
               book: "Cannot delete book a you do not own",
@@ -102,6 +102,7 @@ const bookResolvers = {
     },
 
     async editBook(_, { bookId, price, isBought }, { req }) {
+      console.log("Yeah");
       // NOTE: Add some code to make sure that everyone who wants
       // this book is notified that this book has been sold,
       // Still need to find a way to actually do that

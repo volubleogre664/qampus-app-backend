@@ -1,8 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { ForbiddenError, UserInputError } = require("apollo-server-express");
-const dotenv = require("dotenv");
-dotenv.config();
+require("dotenv").config();
 
 const { User, SecreteCode } = require("../../models/index.js");
 const {
@@ -13,7 +12,7 @@ const {
 async function generateToken(sub, payload) {
   return await jwt.sign(payload, process.env.TOKEN_SECRET_KEY, {
     algorithm: "HS256",
-    subject: sub,
+    subject: String(sub),
     expiresIn: "2d",
   });
 }
@@ -154,7 +153,7 @@ const userResolvers = {
           lastName: _user.lastName,
           email: _user.email,
         },
-        SECRET_KEY,
+        process.env.TOKEN_SECRET_KEY,
         { expiresIn: "12h" }
       );
       await new SecreteCode({

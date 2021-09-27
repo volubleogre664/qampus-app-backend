@@ -60,11 +60,10 @@ app.get("/auth/verification/verify-email/:userId/:secreteCode", verifyEmail);
 
 // Make httpServer from the express app
 const httpServer = createServer(app);
+
 // Make a Socket IO server from the httpServer
 const io = new Server(httpServer, {
-  cors: {
-    origin: "*",
-  },
+  cors: { origin: "*" },
 });
 
 // Create the apollo-graphql server
@@ -88,7 +87,7 @@ io.on("connection", (socket) => {
 
   // When user disconnects end the SocketIO room of their id
   socket.on("disconnect", () => {
-    // socket.leave(userId);
+    socket.leave(userId);
   });
 });
 

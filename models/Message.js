@@ -4,6 +4,7 @@ const msgSchema = new Schema({
   to: Schema.Types.ObjectId,
   from: Schema.Types.ObjectId,
   time: String,
+  attachment: String,
   textMsg: String,
   book: Schema.Types.ObjectId,
   expireAt: {

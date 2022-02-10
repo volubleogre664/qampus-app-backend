@@ -33,7 +33,8 @@ module.exports = gql`
     time: String!
     from: String!
     to: String!
-    textMsg: String!
+    textMsg: String
+    attachment: String
     book: Book
   }
 
@@ -85,6 +86,6 @@ module.exports = gql`
     deleteBook(bookId: ID!): String!
     searchBook(searchStr: String!): [Book]
     editBook(bookId: ID!, price: Float, isBought: Boolean): Book!
-    addMessage(to: ID!, textMsg: String!, book: ID): Message!
+    addMessage(to: ID!, textMsg: String, attachment: String, book: ID): Message!
   }
 `;

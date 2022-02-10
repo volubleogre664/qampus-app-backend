@@ -93,7 +93,7 @@ const bookResolvers = {
         await book.delete();
 
         // return this... Still need to work on errors: like how to structure
-        return `${book._id}`;
+        return `${bookId}`;
       } catch (err) {
         throw new Error("An error occured while deleting book", {
           errors: err,

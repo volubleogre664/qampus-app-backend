@@ -83,7 +83,7 @@ const messageResolvers = {
     },
   },
   Mutation: {
-    async addMessage(_, { to, textMsg, book }, { req, io }) {
+    async addMessage(_, { to, textMsg, attachment, book }, { req, io }) {
       if (!req.user) {
         throw new ForbiddenError("Not Authorized", {
           error: "not_auth",
@@ -109,6 +109,7 @@ const messageResolvers = {
           to,
           from: user.id,
           time: dayjs().toISOString(),
+          attachment: attachment || "",
           textMsg,
           book,
         };

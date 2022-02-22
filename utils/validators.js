@@ -1,5 +1,4 @@
 const validateRegisterInput = (
-  studentNumber,
   firstName,
   lastName,
   email,
@@ -7,12 +6,6 @@ const validateRegisterInput = (
   confirmPassword
 ) => {
   const errors = {};
-
-  if (studentNumber.length !== 10) {
-    errors.studentNumber = "Student number must have ten numeric characters";
-  } else if (!+studentNumber) {
-    errors.studentNumber = "Student number must contain numbers only(0 - 9)";
-  }
 
   if (firstName.trim() === "" || lastName.trim() === "") {
     errors.username = "Name or surname must not be empty";
@@ -40,13 +33,13 @@ const validateRegisterInput = (
   };
 };
 
-const validateLoginInput = (studentNumber, password) => {
+const validateLoginInput = (email, password) => {
   const errors = {};
 
-  if (studentNumber.length !== 10) {
-    errors.studentNumber = "Student number must have ten numeric characters";
-  } else if (!+studentNumber) {
-    errors.studentNumber = "Student number must contain numbers only(0 - 9)";
+  const regEx =
+    /^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,9})$/;
+  if (!email.match(regEx)) {
+    errors.email = "Email must be a valid email address";
   }
 
   if (password.trim() === "") {

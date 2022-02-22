@@ -3,13 +3,14 @@ const { gql } = require("apollo-server-express");
 module.exports = gql`
   type User {
     id: ID!
-    studentNumber: String!
     firstName: String!
     lastName: String!
-    email: String
+    email: String!
     picture: String
     degree: String
-    bio: String
+    university: String
+    campus: String
+    gender: String
     contacts: [User]
     token: String
   }
@@ -39,10 +40,9 @@ module.exports = gql`
   }
 
   input RegisterInput {
-    studentNumber: String!
     firstName: String!
     lastName: String!
-    email: String
+    email: String!
     password: String!
     confirmPassword: String!
   }
@@ -62,10 +62,11 @@ module.exports = gql`
   input UpdateInput {
     firstName: String
     lastName: String
-    email: String
     picture: String
     degree: String
-    bio: String
+    university: String
+    campus: String
+    gender: String
     newPassword: String
     confirmNewPassword: String
     password: String
@@ -80,7 +81,7 @@ module.exports = gql`
 
   type Mutation {
     register(registerInput: RegisterInput!): User!
-    login(studentNumber: String!, password: String!): User!
+    login(email: String!, password: String!): User!
     updateUser(updateInput: UpdateInput!): User!
     uploadBook(bookInput: BookInput!): Book!
     deleteBook(bookId: ID!): String!

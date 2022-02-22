@@ -19,8 +19,8 @@ async function generateToken(sub, payload) {
 
 const userResolvers = {
   Mutation: {
-    async login(_, { studentNumber, password }) {
-      const { errors, valid } = validateLoginInput(studentNumber, password);
+    async login(_, { email, password }) {
+      const { errors, valid } = validateLoginInput(email, password);
 
       // Check for any input errors after validating them
       if (!valid) {
@@ -28,7 +28,7 @@ const userResolvers = {
       }
 
       // Find the user from database
-      const user = await User.findOne({ studentNumber });
+      const user = await User.findOne({ email });
 
       // If user is null then no user is found then return user not found
       if (!user) {
@@ -72,13 +72,14 @@ const userResolvers = {
       _,
       {
         registerInput: {
-          studentNumber,
           firstName,
           lastName,
           email,
           picture,
           degree,
-          bio,
+          university,
+          campus,
+          gender,
           password,
           confirmPassword,
         },
@@ -86,7 +87,6 @@ const userResolvers = {
     ) {
       // 1. Validate user input
       const { valid, errors } = validateRegisterInput(
-        studentNumber,
         firstName,
         lastName,
         email,
@@ -100,12 +100,11 @@ const userResolvers = {
       }
 
       // Make sure user doesn't already exist
-      const user = await User.findOne({ studentNumber });
+      const user = await User.findOne({ email });
       if (user) {
-        throw new UserInputError("Student number is taken", {
+        throw new UserInputError("Email address is taken", {
           errors: {
-            studentNumber:
-              "This student number is registered, try to loggin with",
+            studentNumber: "This email is registered, try to loggin with",
           },
         });
       }
@@ -115,13 +114,15 @@ const userResolvers = {
 
       // Create the mongo object with User schema
       const newUser = new User({
-        studentNumber,
         firstName,
         lastName,
         email,
         picture: picture && picture.replace(/ /gi, "") ? picture : "",
         degree: degree && degree.replace(/ /gi, "") ? degree : "",
-        bio: bio && bio.replace(/ /gi, "") ? bio : "",
+        university:
+          university && university.replace(/ /gi, "") ? university : "",
+        campus: campus && campus.replace(/ /gi, "") ? campus : "",
+        gender: gender && gender.replace(/ /gi, "") ? gender : "",
         password,
       });
 
@@ -137,7 +138,7 @@ const userResolvers = {
           "write:own_content",
         ],
       };
-      const token = generateToken(res._id, jwtPayload);
+      const token = await generateToken(res._id, jwtPayload);
 
       // Return all the info back to the client
       const _user = {
@@ -221,14 +222,25 @@ const userResolvers = {
       const res = await updatedUser.save();
 
       // Generate the new token with new user data
-      const token = generateToken(res);
+      const jwtPayload = {
+        roles: "user",
+        permissions: [
+          "read:related_content",
+          "read:own_content",
+          "write:own_content",
+        ],
+      };
+      const token = await generateToken(res._id, jwtPayload);
 
-      // Return the whole info to the client
-      return {
+      let newUser = {
         ...res._doc,
         id: res._id,
         token,
       };
+
+      // console.log(newUser);
+      // Return the whole info to the client
+      return newUser;
     },
   },
   Query: {
@@ -241,7 +253,7 @@ const userResolvers = {
         const user = await User.findById(id, {
           firstName: 1,
           lastName: 1,
-          studentNumber: 1,
+          email: 1,
           picture: 1,
         });
 

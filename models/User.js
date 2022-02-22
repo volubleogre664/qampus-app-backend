@@ -1,13 +1,14 @@
 const { model, Schema } = require("mongoose");
 
 const userSchema = new Schema({
-  studentNumber: String,
   firstName: String,
   lastName: String,
   email: String,
   picture: String,
   degree: String,
-  bio: String,
+  university: String,
+  campus: String,
+  gender: String,
   contacts: [Schema.Types.ObjectId],
   password: String,
   status: {

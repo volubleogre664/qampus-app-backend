@@ -232,9 +232,12 @@ const userResolvers = {
       };
       const token = await generateToken(res._id, jwtPayload);
 
+      let contacts = await User.find({ _id: { $in: res.contacts } });
+
       let newUser = {
         ...res._doc,
         id: res._id,
+        contacts: contacts || [],
         token,
       };
 

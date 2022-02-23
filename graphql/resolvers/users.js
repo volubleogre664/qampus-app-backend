@@ -1,9 +1,10 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const dayjs = require("dayjs");
 const { ForbiddenError, UserInputError } = require("apollo-server-express");
 require("dotenv").config();
 
-const { User, SecreteCode } = require("../../models/index.js");
+const { User, SecreteCode, Message } = require("../../models/index.js");
 const {
   validators: { validateLoginInput, validateRegisterInput },
   sendEmail,
@@ -112,6 +113,11 @@ const userResolvers = {
       // hash password and create user password
       password = await bcrypt.hash(password, 12);
 
+      // let csEmail = "nucelarsoftwarehosting@gmail.com";
+      // const csRes = await User.findById("62162fa57faa3f001601f247");
+
+      // console.log(csRes);
+
       // Create the mongo object with User schema
       const newUser = new User({
         firstName,
@@ -124,6 +130,7 @@ const userResolvers = {
         campus: campus && campus.replace(/ /gi, "") ? campus : "",
         gender: gender && gender.replace(/ /gi, "") ? gender : "",
         password,
+        contacts: ["62162fa57faa3f001601f247"],
       });
 
       // Save user to database
@@ -146,7 +153,17 @@ const userResolvers = {
         id: res._id,
         token,
       };
-      _user.contacts = [];
+
+      _user.contacts = [
+        {
+          id: "62162fa57faa3f001601f247",
+          firstName: "Customer",
+          lastName: "Service",
+          email: "nucelarsoftwarehosting@gmail.com",
+          picture:
+            "https://firebasestorage.googleapis.com/v0/b/qampus-app.appspot.com/o/62162fa57faa3f001601f247%2Fprofile%2FCustomer.jpg?alt=media&token=c5d384a7-7d8b-4896-b547-a6da7793cee0",
+        },
+      ];
 
       let secreteCode = jwt.sign(
         {
@@ -157,6 +174,19 @@ const userResolvers = {
         process.env.TOKEN_SECRET_KEY,
         { expiresIn: "12h" }
       );
+
+      const msgObject = {
+        to: _user.id,
+        from: "62162fa57faa3f001601f247",
+        time: dayjs().toISOString(),
+        attachment: "",
+        textMsg:
+          "Welcome to Qampus, If you need any help please feel free to chat with us here.",
+      };
+
+      const message = new Message(msgObject);
+      await message.save();
+
       await new SecreteCode({
         email: _user.email,
         code: secreteCode,
@@ -241,7 +271,6 @@ const userResolvers = {
         token,
       };
 
-      // console.log(newUser);
       // Return the whole info to the client
       return newUser;
     },
@@ -251,9 +280,10 @@ const userResolvers = {
       // Given the student number, find the user data and return minimal data
       try {
         // In SQL
-        // SELECT id, firstName, lastName, studentNumber, picture
+        // SELECT id, firstName, lastName, email, picture
         //    FROM User WHERE id = <id>;
         const user = await User.findById(id, {
+          id: 1,
           firstName: 1,
           lastName: 1,
           email: 1,
@@ -263,6 +293,7 @@ const userResolvers = {
         // Return the user to client
         return user;
       } catch (err) {
+        console.log(err);
         throw new Error("No user found");
       }
     },

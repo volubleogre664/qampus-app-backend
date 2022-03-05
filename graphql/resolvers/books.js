@@ -135,26 +135,18 @@ const bookResolvers = {
       }
     },
 
-    async searchBook(_, { searchStr }) {
+    async searchBook(_, { searchStr }, { req }) {
+      // console.log(searchStr);
       try {
         let res;
         if (searchStr === "") {
           res = await Book.find({}).limit(10);
         } else {
-          res = await Book.aggregate([
-            {
-              $search: {
-                text: {
-                  query: searchStr,
-                  path: ["title", "isbn", "moduleCode"],
-                },
-              },
-            },
-            {
-              $limit: 10,
-            },
-          ]);
+          res = await Book.find({ $text: { $search: searchStr } });
         }
+
+        if (!!req?.user?.sub)
+          res = res.filter((book) => book.bookOwner !== req.user.sub);
 
         return res.map((book) => ({
           id: book._id,

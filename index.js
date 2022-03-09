@@ -58,6 +58,9 @@ app.use((req, res, next) => {
 // The route for verifying a user email after creating an account
 app.get("/auth/verification/verify-email/:userId/:secreteCode", verifyEmail);
 
+// Increase the request size of our queries and mutations
+app.use(express.json({limit: "50mb"}))
+
 // Make httpServer from the express app
 const httpServer = createServer(app);
 

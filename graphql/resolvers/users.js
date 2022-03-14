@@ -4,10 +4,16 @@ const dayjs = require("dayjs");
 const { ForbiddenError, UserInputError } = require("apollo-server-express");
 require("dotenv").config();
 
-const { User, SecreteCode, Message } = require("../../models/index.js");
+const {
+  User,
+  SecreteCode,
+  Message,
+  Password,
+} = require("../../models/index.js");
 const {
   validators: { validateLoginInput, validateRegisterInput },
   sendEmail,
+  getRandomPassword,
 } = require("../../utils/index.js");
 
 async function generateToken(sub, payload) {
@@ -21,11 +27,15 @@ async function generateToken(sub, payload) {
 const userResolvers = {
   Mutation: {
     async login(_, { email, password }) {
+      email = email.trim();
+      password = password.trim();
       const { errors, valid } = validateLoginInput(email, password);
 
       // Check for any input errors after validating them
       if (!valid) {
-        throw new UserInputError("Errors", { errors });
+        throw new UserInputError("Errors", {
+          error: "email_password_incorrect",
+        });
       }
 
       // Find the user from database
@@ -34,18 +44,17 @@ const userResolvers = {
       // If user is null then no user is found then return user not found
       if (!user) {
         errors.general = "User not found";
-        throw new UserInputError("User not found", { errors });
+        throw new UserInputError("User not found", { error: "invalid_email" });
       }
 
       // Match passwords and throw user input errors if they're wrong
-      const match = await bcrypt.compare(password, user.password);
+      let match = await bcrypt.compare(password, user.password);
       if (!match) {
         errors.general = "Wrong Credentials";
-        throw new UserInputError("Wrong Credentials", { errors });
+        throw new UserInputError("Wrong Credentials", {
+          error: "email_password_incorrect",
+        });
       }
-
-      // Getting all the contacts fo the user if there are any
-      let contacts = await User.find({ _id: { $in: user.contacts } });
 
       // Generate the JWT token for user's authetication
       // Create JWT payload section here mate
@@ -57,6 +66,40 @@ const userResolvers = {
           "write:own_content",
         ],
       };
+
+      // If one time password was generated before this and disable it
+      let passwordModel = await Password.findOne({ owner: email });
+      if (passwordModel) {
+        match = await bcrypt.compare(password, passwordModel.secure);
+        if (match && passwordModel.secureUsed) {
+          throw new ForbiddenError("One time password has been used", {
+            error: "secure_password_used",
+          });
+        } else if (
+          match &&
+          !passwordModel.secureUsed &&
+          passwordModel.resetRequest
+        ) {
+          passwordModel.secureUsed = true;
+          passwordModel.resetRequest = false;
+          jwtPayload.permissions.push("auth:secure_password");
+          passwordModel.save();
+        } else {
+          match = await bcrypt.compare(password, passwordModel.current);
+          if (match && !passwordModel.secureUsed) {
+            user.password = passwordModel.current;
+            passwordModel.secureUsed = true;
+            passwordModel.resetRequest = false;
+            passwordModel.save();
+            user.save();
+          }
+        }
+      }
+
+      // Getting all the contacts fo the user if there are any
+      let contacts = await User.find({ _id: { $in: user.contacts } });
+
+      // Generate the access token
       const token = generateToken(user.id, jwtPayload);
 
       // Return the final result
@@ -104,9 +147,7 @@ const userResolvers = {
       const user = await User.findOne({ email });
       if (user) {
         throw new UserInputError("Email address is taken", {
-          errors: {
-            studentNumber: "This email is registered, try to loggin with",
-          },
+          errors: "email_exists",
         });
       }
 
@@ -227,12 +268,15 @@ const userResolvers = {
       // Hash the passwords and map them to newUserData variable.
       if (password && newPassword === confirmNewPassword) {
         const match = await bcrypt.compare(password, updatedUser.password);
+        let passwordModel = await Password.findOne({
+          owner: updatedUser.email,
+        });
 
         // Throw user input error if passwords do not match
-        if (!match) {
+        if (!match && password !== "secure" && !passwordModel.secureUsed) {
           throw new UserInputError("Wrong credentials", {
             errors: {
-              password: "Wrong password.",
+              password: "current_password_incorrect",
             },
           });
         }
@@ -273,6 +317,44 @@ const userResolvers = {
 
       // Return the whole info to the client
       return newUser;
+    },
+
+    async forgotPassword(_, { email }) {
+      try {
+        let user = await User.findOne({ email });
+
+        let password = getRandomPassword();
+        passwordHash = await bcrypt.hash(password, 12);
+
+        let passwordModel = await Password.findOne({ owner: email });
+
+        if (!passwordModel) {
+          passwordModel = new Password({
+            owner: user.email,
+            current: user.password,
+            secure: passwordHash,
+          });
+        } else {
+          passwordModel.current = user.password;
+          passwordModel.secure = passwordHash;
+          passwordModel.secureUsed = false;
+          passwordModel.resetRequest = true;
+        }
+
+        passwordModel.save();
+
+        sendEmail("FORGOT_PASSWORD", {
+          password,
+          email,
+        });
+
+        user.password = passwordHash;
+        user.save();
+
+        return "Secure password created";
+      } catch (err) {
+        throw new Error("Error eccured please try again.");
+      }
     },
   },
   Query: {

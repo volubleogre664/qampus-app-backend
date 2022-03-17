@@ -37,8 +37,7 @@ function setEmailMetaData(emailType, data) {
 
   switch (emailType) {
     case "FORGOT_PASSWORD": {
-      emailOptions.to =
-        data.email == "jdoe@fake.com" && "nduduzos820@gmail.com";
+      emailOptions.to = data.email;
       emailOptions.from = "Qampus <noreply@qampus.com>";
       emailOptions.subject = `Qampus Password Request`;
 

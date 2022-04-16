@@ -140,7 +140,7 @@ const bookResolvers = {
       try {
         let res;
         if (searchStr === "") {
-          res = await Book.find({}).limit(10);
+          res = await Book.find({}).limit(12);
         } else {
           res = await Book.find({ $text: { $search: searchStr } });
         }
@@ -148,16 +148,18 @@ const bookResolvers = {
         if (!!req?.user?.sub)
           res = res.filter((book) => book.bookOwner !== req.user.sub);
 
-        return res.map((book) => ({
-          id: book._id,
-          isbn: book.isbn,
-          title: book.title,
-          price: book.price,
-          bookOwner: book.bookOwner,
-          moduleCode: book.moduleCode,
-          authors: book.authors,
-          frontCover: book.frontCover,
-        }));
+        return res
+          .map((book) => ({
+            id: book._id,
+            isbn: book.isbn,
+            title: book.title,
+            price: book.price,
+            bookOwner: book.bookOwner,
+            moduleCode: book.moduleCode,
+            authors: book.authors,
+            frontCover: book.frontCover,
+          }))
+          .reverse();
       } catch (err) {
         throw new Error("Failed to search for the books");
       }

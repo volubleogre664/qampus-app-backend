@@ -77,6 +77,7 @@ module.exports = gql`
     getBook(bookId: ID!): Book!
     getBooks(bookOwner: ID!): [Book]
     getMessages(to: ID!, from: ID!, messagesLength: Float!): [Message]
+    getAllUserMessages(userId: ID!): [Message]
   }
 
   type Mutation {

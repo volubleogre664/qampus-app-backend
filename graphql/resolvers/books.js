@@ -102,7 +102,6 @@ const bookResolvers = {
     },
 
     async editBook(_, { bookId, price, isBought }, { req }) {
-      console.log("Yeah");
       // NOTE: Add some code to make sure that everyone who wants
       // this book is notified that this book has been sold,
       // Still need to find a way to actually do that

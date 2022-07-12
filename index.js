@@ -22,9 +22,9 @@ const URL = process.env.SERVER_URL;
 
 // Setup the cors options
 const corsOptions = {
-  origin: "*",
+  origin: "https://qampus.co.za",
+  credentials: true,
 };
-// credentials: true,
 
 // Make an express app and apply the appropriate middlewares
 const app = express();

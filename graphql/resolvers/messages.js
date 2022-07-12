@@ -4,6 +4,39 @@ const { ForbiddenError, UserInputError } = require("apollo-server-express");
 const { Book, User, Message } = require("../../models/index.js");
 const { sendEmail } = require("../../utils/index.js");
 
+const getBookDataForMessages = (messages) => {
+  // To store the final array of messages to be sent to client side
+  const messagesBooks = [];
+
+  // Small function to get books by ID from DB
+  // In SQL ->
+  // SELECT id, title, picture, price FROM Book WHERE Book.id = bookId
+  const getBook = async (bookId) =>
+    await Book.findById(bookId, {
+      id: 1,
+      title: 1,
+      picture: 1,
+      price: 1,
+    });
+
+  // Go through messages and find messages with books.
+  // Messages with books have the ID of a book in them
+  // Simply use the ID to get book Object and push to messagesBooks
+  messages.forEach((msg) => {
+    if (msg.book) {
+      let { book, ...newMsg } = { ...msg._doc, id: msg._id };
+      newMsg.book = getBook(msg.book);
+      messagesBooks.push(newMsg);
+    } else {
+      messagesBooks.push(msg);
+    }
+  });
+
+  messages = null;
+
+  return messagesBooks;
+};
+
 const messageResolvers = {
   Query: {
     async getMessages(_, { to, from, messagesLength }, { req }) {
@@ -51,35 +84,32 @@ const messageResolvers = {
             ? []
             : messages.slice(messagesLength);
 
-        // To store the final array of messages to be sent to client side
-        const messagesBooks = [];
-
-        // Small function to get books by ID from DB
-        // In SQL ->
-        // SELECT * FROM Book WHERE Book.id = bookId
-        const getBook = async (bookId) => await Book.findById(bookId);
-
-        // Go through messages and find messages with books.
-        // Messages with books have the ID of a book in them
-        // Simply use the ID to get book Object and push to messagesBooks
-        messages.forEach((msg) => {
-          if (msg.book) {
-            let { book, ...newMsg } = { ...msg._doc, id: msg._id };
-            newMsg.book = getBook(msg.book);
-            messagesBooks.push(newMsg);
-          } else {
-            messagesBooks.push(msg);
-          }
-        });
-
-        messages = null;
-
-        return messagesBooks;
+        return getBookDataForMessages(messages);
       } catch (err) {
         throw new Error("Errors getting your messages", {
           errors: err,
         });
       }
+    },
+
+    async getAllUserMessages(_, { userId }, { req }) {
+      try {
+        if (from !== req.user.sub) {
+          throw new ForbiddenError("Not Authorized", {
+            errors: "not_auth",
+          });
+        }
+
+        // Get all the user's messages from database
+        // In SQL ->
+        // SELECT * FROM Message WHERE to=userId OR from=userId
+        let messages = await Message.find({}).or([
+          { to: userId },
+          { from: userId },
+        ]);
+
+        return getBookDataForMessages(messages);
+      } catch (err) {}
     },
   },
   Mutation: {

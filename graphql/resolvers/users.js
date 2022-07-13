@@ -287,7 +287,7 @@ const userResolvers = {
 
       // Save the data to updatedUser
       Object.keys(newUserData).forEach((key) => {
-        if (newUserData[key]) {
+        if (newUserData[key] || key === "picture") {
           updatedUser[key] = newUserData[key];
         }
       });

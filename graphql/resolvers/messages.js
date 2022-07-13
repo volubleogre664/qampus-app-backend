@@ -94,7 +94,7 @@ const messageResolvers = {
 
     async getAllUserMessages(_, { userId }, { req }) {
       try {
-        if (from !== req.user.sub) {
+        if (userId !== req.user.sub) {
           throw new ForbiddenError("Not Authorized", {
             errors: "not_auth",
           });

@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const { Server } = require("socket.io");
 const { createServer } = require("http");
+const { auth } = require("express-oauth2-jwt-bearer");
 
 const { MONGO_DB } = require("./config.js");
 const typeDefs = require("./graphql/typedefs.js");
@@ -19,6 +20,13 @@ dotenv.config();
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const PORT = process.env.PORT;
 const URL = process.env.SERVER_URL;
+
+// Authorization middleware. When used, the Access Token must
+// exist and be verified against the Auth0 JSON Web Key Set.
+const checkJwt = auth({
+  audience: "YOUR_API_IDENTIFIER",
+  issuerBaseURL: `https://dev-l5ikw83k0ienhwzt.us.auth0.com/`,
+});
 
 // Setup the cors options
 const corsOptions = {

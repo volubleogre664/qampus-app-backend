@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const { Server } = require("socket.io");
 const { createServer } = require("http");
-const { auth } = require("express-oauth2-jwt-bearer");
+const { auth, requiredScopes } = require("express-oauth2-jwt-bearer");
 
 const { MONGO_DB } = require("./config.js");
 const typeDefs = require("./graphql/typedefs.js");
@@ -24,7 +24,7 @@ const URL = process.env.SERVER_URL;
 // Authorization middleware. When used, the Access Token must
 // exist and be verified against the Auth0 JSON Web Key Set.
 const checkJwt = auth({
-  audience: "YOUR_API_IDENTIFIER",
+  audience: "https://server.qampus.co.za/api",
   issuerBaseURL: `https://dev-l5ikw83k0ienhwzt.us.auth0.com/`,
 });
 
@@ -37,31 +37,35 @@ const corsOptions = {
 // Make an express app and apply the appropriate middlewares
 const app = express();
 app.use(cors(corsOptions));
+
+// app.use(checkJwt);
+
 // This middleware intercepts a token and try to get the user data from it
 // If token is null it simply makes the default guest user
-app.use((req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    next();
-    return;
-  }
+// app.use((req, res, next) => {
+//   const authHeader = req.headers.authorization;
+//   console.log("Yeah");
+//   if (!authHeader) {
+//     next();
+//     return;
+//   }
 
-  let token = authHeader.split("Bearer ")[1];
-  let user;
-  if (!token) {
-    user = undefined;
-  } else {
-    try {
-      user = jwt.verify(token, process.env.TOKEN_SECRET_KEY);
-    } catch (err) {
-      user = undefined;
-    }
-  }
+//   let token = authHeader.split("Bearer ")[1];
+//   let user;
+//   if (!token) {
+//     user = undefined;
+//   } else {
+//     try {
+//       user = jwt.verify(token, process.env.TOKEN_SECRET_KEY);
+//     } catch (err) {
+//       user = undefined;
+//     }
+//   }
 
-  req.user = user;
+//   req.user = user;
 
-  next();
-});
+//   next();
+// });
 
 // The route for verifying a user email after creating an account
 app.get("/auth/verification/verify-email/:userId/:secreteCode", verifyEmail);

@@ -26,7 +26,7 @@ async function generateToken(sub, payload) {
 
 const userResolvers = {
   Mutation: {
-    async login(_, { email, password }) {
+    async login(_, { email, password = "what" }) {
       email = email.trim();
       password = password.trim();
       const { errors, valid } = validateLoginInput(email, password);
@@ -48,13 +48,13 @@ const userResolvers = {
       }
 
       // Match passwords and throw user input errors if they're wrong
-      let match = await bcrypt.compare(password, user.password);
-      if (!match) {
-        errors.general = "Wrong Credentials";
-        throw new UserInputError("Wrong Credentials", {
-          error: "email_password_incorrect",
-        });
-      }
+      // let match = await bcrypt.compare(password, user.password);
+      // if (!match) {
+      //   errors.general = "Wrong Credentials";
+      //   throw new UserInputError("Wrong Credentials", {
+      //     error: "email_password_incorrect",
+      //   });
+      // }
 
       // Generate the JWT token for user's authetication
       // Create JWT payload section here mate
@@ -68,46 +68,45 @@ const userResolvers = {
       };
 
       // If one time password was generated before this and disable it
-      let passwordModel = await Password.findOne({ owner: email });
-      if (passwordModel) {
-        match = await bcrypt.compare(password, passwordModel.secure);
-        if (match && passwordModel.secureUsed) {
-          throw new ForbiddenError("One time password has been used", {
-            error: "secure_password_used",
-          });
-        } else if (
-          match &&
-          !passwordModel.secureUsed &&
-          passwordModel.resetRequest
-        ) {
-          passwordModel.secureUsed = true;
-          passwordModel.resetRequest = false;
-          jwtPayload.permissions.push("auth:secure_password");
-          passwordModel.save();
-        } else {
-          match = await bcrypt.compare(password, passwordModel.current);
-          if (match && !passwordModel.secureUsed) {
-            user.password = passwordModel.current;
-            passwordModel.secureUsed = true;
-            passwordModel.resetRequest = false;
-            passwordModel.save();
-            user.save();
-          }
-        }
-      }
+      // let passwordModel = await Password.findOne({ owner: email });
+      // if (passwordModel) {
+      //   match = await bcrypt.compare(password, passwordModel.secure);
+      //   if (match && passwordModel.secureUsed) {
+      //     throw new ForbiddenError("One time password has been used", {
+      //       error: "secure_password_used",
+      //     });
+      //   } else if (
+      //     match &&
+      //     !passwordModel.secureUsed &&
+      //     passwordModel.resetRequest
+      //   ) {
+      //     passwordModel.secureUsed = true;
+      //     passwordModel.resetRequest = false;
+      //     jwtPayload.permissions.push("auth:secure_password");
+      //     passwordModel.save();
+      //   } else {
+      //     match = await bcrypt.compare(password, passwordModel.current);
+      //     if (match && !passwordModel.secureUsed) {
+      //       user.password = passwordModel.current;
+      //       passwordModel.secureUsed = true;
+      //       passwordModel.resetRequest = false;
+      //       passwordModel.save();
+      //       user.save();
+      //     }
+      //   }
+      // }
 
       // Getting all the contacts fo the user if there are any
       let contacts = await User.find({ _id: { $in: user.contacts } });
 
       // Generate the access token
-      const token = generateToken(user.id, jwtPayload);
+      // const token = generateToken(user.id, jwtPayload);
 
       // Return the final result
       return {
         ...user._doc,
         id: user.id,
         contacts: contacts,
-        token,
       };
     },
 

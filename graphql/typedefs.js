@@ -12,7 +12,6 @@ module.exports = gql`
     campus: String
     gender: String
     contacts: [User]
-    token: String
   }
 
   type Book {
@@ -88,7 +87,13 @@ module.exports = gql`
     deleteBook(bookId: ID!): String!
     searchBook(searchStr: String!): [Book]
     editBook(bookId: ID!, price: Float, isBought: Boolean): Book!
-    addMessage(to: ID!, textMsg: String, attachment: String, book: ID): Message!
+    addMessage(
+      to: ID!
+      from: ID!
+      textMsg: String
+      attachment: String
+      book: ID
+    ): Message!
     forgotPassword(email: String!): String!
   }
 `;

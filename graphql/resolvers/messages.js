@@ -3,6 +3,7 @@ const { ForbiddenError, UserInputError } = require("apollo-server-express");
 
 const { Book, User, Message } = require("../../models/index.js");
 const { sendEmail } = require("../../utils/index.js");
+const isTokenValid = require("../../utils/validateToken.js");
 
 const getBookDataForMessages = (messages) => {
   // To store the final array of messages to be sent to client side
@@ -41,7 +42,9 @@ const messageResolvers = {
   Query: {
     async getMessages(_, { to, from, messagesLength }, { req }) {
       try {
-        if (from !== req.user.sub) {
+        const { error } = isTokenValid(req.headers.authorization.split(" ")[1]);
+        if (error) {
+          console.log(error);
           throw new ForbiddenError("Not Authorized", {
             errors: "not_auth",
           });
@@ -94,7 +97,9 @@ const messageResolvers = {
 
     async getAllUserMessages(_, { userId }, { req }) {
       try {
-        if (userId !== req.user.sub) {
+        const { error } = isTokenValid(req.headers.authorization.split(" ")[1]);
+        if (error) {
+          console.log(error);
           throw new ForbiddenError("Not Authorized", {
             errors: "not_auth",
           });
@@ -113,10 +118,11 @@ const messageResolvers = {
     },
   },
   Mutation: {
-    async addMessage(_, { to, textMsg, attachment, book }, { req, io }) {
-      if (!req.user) {
+    async addMessage(_, { to, from, textMsg, attachment, book }, { req, io }) {
+      const { error } = isTokenValid(req.headers.authorization.split(" ")[1]);
+      if (error) {
         throw new ForbiddenError("Not Authorized", {
-          error: "not_auth",
+          errors: "not_auth",
         });
       }
 
@@ -125,7 +131,7 @@ const messageResolvers = {
         // In SQL
         // SELECT * FROM User WHERE User.id = (to | user.id) -> For both user and toUser
         const toUser = await User.findById(to);
-        const user = await User.findById(req.user.sub);
+        const user = await User.findById(from);
 
         // If toUser does not exist then throw error that user does not exist
         if (!toUser) {

@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const dayjs = require("dayjs");
 const { ForbiddenError, UserInputError } = require("apollo-server-express");
+const isTokenValid = require("../../utils/validateToken.js");
 require("dotenv").config();
 
 const {
@@ -58,14 +59,14 @@ const userResolvers = {
 
       // Generate the JWT token for user's authetication
       // Create JWT payload section here mate
-      const jwtPayload = {
-        roles: "user",
-        permissions: [
-          "read:public_content",
-          "read:own_content",
-          "write:own_content",
-        ],
-      };
+      // const jwtPayload = {
+      //   roles: "user",
+      //   permissions: [
+      //     "read:public_content",
+      //     "read:own_content",
+      //     "write:own_content",
+      //   ],
+      // };
 
       // If one time password was generated before this and disable it
       // let passwordModel = await Password.findOne({ owner: email });
@@ -243,16 +244,18 @@ const userResolvers = {
     },
     async updateUser(_, { updateInput }, { req }) {
       // Check if user has priviledges for editing the account
-      if (!req.user) {
+      const { error } = isTokenValid(req.headers.authorization.split(" ")[1]);
+      if (error) {
+        console.log(error);
         throw new ForbiddenError("Not Authorized", {
-          error: "not_auth",
+          errors: "not_auth",
         });
       }
 
       // Create new user object from database
       // In SQL
       // SELECT * FROM User WHERE id = <user.id>
-      const updatedUser = await User.findById(req.user.sub);
+      const updatedUser = await User.findById(updateInput.id);
 
       // TODO: Come back and here work out the update user with and without the password
       // Check if passwords match before doing anything
@@ -363,13 +366,7 @@ const userResolvers = {
         // In SQL
         // SELECT id, firstName, lastName, email, picture
         //    FROM User WHERE id = <id>;
-        const user = await User.findById(id, {
-          id: 1,
-          firstName: 1,
-          lastName: 1,
-          email: 1,
-          picture: 1,
-        });
+        const user = await User.findById(id);
 
         // Return the user to client
         return user;

@@ -18,14 +18,11 @@ module.exports = gql`
     id: ID!
     isbn: String!
     title: String!
-    subtitle: String
     authors: String!
     price: Float!
-    description: String
     moduleCode: String
     bookOwner: ID!
     frontCover: String
-    backCover: String
   }
 
   type Message {
@@ -49,16 +46,15 @@ module.exports = gql`
   input BookInput {
     isbn: String!
     title: String!
-    subtitle: String
     moduleCode: String
     authors: String
     price: Float!
-    description: String
-    frontCover: String
-    backCover: String
+    frontCover: String!
+    bookOwner: ID!
   }
 
   input UpdateInput {
+    id: ID!
     firstName: String
     lastName: String
     picture: String
@@ -84,7 +80,7 @@ module.exports = gql`
     login(email: String!, password: String!): User!
     updateUser(updateInput: UpdateInput!): User!
     uploadBook(bookInput: BookInput!): Book!
-    deleteBook(bookId: ID!): String!
+    deleteBook(bookId: ID!, bookOwner: ID!): String!
     searchBook(searchStr: String!): [Book]
     editBook(bookId: ID!, price: Float, isBought: Boolean): Book!
     addMessage(

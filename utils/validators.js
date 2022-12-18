@@ -63,10 +63,6 @@ const validateBookInput = ({ isbn, title, authors, price }) => {
     errors.title = "The book title cannot be empty";
   }
 
-  if (authors.trim() === "") {
-    errors.authors = "The author cannot be empty";
-  }
-
   if (price.toString().trim() === "") {
     errors.price = "The book price cannot be empty";
   } else if (!+price) {

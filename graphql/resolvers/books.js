@@ -1,13 +1,15 @@
 const { ForbiddenError, UserInputError } = require("apollo-server-express");
 const { Book } = require("../../models/index.js");
 const { validateBookInput } = require("../../utils/index.js").validators;
+const isTokenValid = require("../../utils/validateToken.js");
 
 const bookResolvers = {
   Mutation: {
     async uploadBook(_, { bookInput }, { req }) {
-      if (!req.user) {
+      const { error } = isTokenValid(req.headers.authorization.split(" ")[1]);
+      if (error) {
         throw new ForbiddenError("Not Authorized", {
-          error: "not_auth",
+          errors: "not_auth",
         });
       }
 
@@ -28,7 +30,7 @@ const bookResolvers = {
       const bookExist = await Book.findOne(
         {
           isbn: bookInput.isbn,
-          bookOwner: req.user.sub,
+          bookOwner: bookInput?.bookOwner,
         },
         { id: 1 }
       );
@@ -49,7 +51,7 @@ const bookResolvers = {
         authors: bookInput.authors,
         price: bookInput.price,
         moduleCode: bookInput.moduleCode,
-        bookOwner: req.user.sub,
+        bookOwner: bookInput.bookOwner,
         frontCover: bookInput.frontCover,
       });
 
@@ -60,10 +62,12 @@ const bookResolvers = {
       return res;
     },
 
-    async deleteBook(_, { bookId }, { req }) {
-      if (!req.user) {
+    async deleteBook(_, { bookId, bookOwner }, { req }) {
+      const { error } = isTokenValid(req.headers.authorization.split(" ")[1]);
+      if (error) {
+        console.log(error);
         throw new ForbiddenError("Not Authorized", {
-          error: "not_auth",
+          errors: "not_auth",
         });
       }
 
@@ -81,7 +85,7 @@ const bookResolvers = {
         }
 
         // If user does not own the found book throw error
-        if (req.user.sub != book?.bookOwner) {
+        if (bookOwner != book?.bookOwner) {
           throw new Error("An error occured while deleting book", {
             errors: {
               book: "Cannot delete book a you do not own",
@@ -105,9 +109,11 @@ const bookResolvers = {
       // NOTE: Add some code to make sure that everyone who wants
       // this book is notified that this book has been sold,
       // Still need to find a way to actually do that
-      if (!req.user.sub) {
+      const { error } = isTokenValid(req.headers.authorization.split(" ")[1]);
+      if (error) {
+        console.log(error);
         throw new ForbiddenError("Not Authorized", {
-          error: "not_auth",
+          errors: "not_auth",
         });
       }
 

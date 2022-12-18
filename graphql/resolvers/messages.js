@@ -126,6 +126,8 @@ const messageResolvers = {
         });
       }
 
+      console.log(book);
+
       try {
         // Get user data from database. toUser is message receiver
         // In SQL

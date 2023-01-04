@@ -10,6 +10,7 @@ const userSchema = new Schema({
   campus: String,
   gender: String,
   contacts: [Schema.Types.ObjectId],
+  blockedContacts: [Schema.Types.ObjectId],
   password: String,
   status: {
     type: String,

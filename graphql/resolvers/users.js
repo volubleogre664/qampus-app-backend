@@ -48,60 +48,8 @@ const userResolvers = {
         throw new UserInputError("User not found", { error: "invalid_email" });
       }
 
-      // Match passwords and throw user input errors if they're wrong
-      // let match = await bcrypt.compare(password, user.password);
-      // if (!match) {
-      //   errors.general = "Wrong Credentials";
-      //   throw new UserInputError("Wrong Credentials", {
-      //     error: "email_password_incorrect",
-      //   });
-      // }
-
-      // Generate the JWT token for user's authetication
-      // Create JWT payload section here mate
-      // const jwtPayload = {
-      //   roles: "user",
-      //   permissions: [
-      //     "read:public_content",
-      //     "read:own_content",
-      //     "write:own_content",
-      //   ],
-      // };
-
-      // If one time password was generated before this and disable it
-      // let passwordModel = await Password.findOne({ owner: email });
-      // if (passwordModel) {
-      //   match = await bcrypt.compare(password, passwordModel.secure);
-      //   if (match && passwordModel.secureUsed) {
-      //     throw new ForbiddenError("One time password has been used", {
-      //       error: "secure_password_used",
-      //     });
-      //   } else if (
-      //     match &&
-      //     !passwordModel.secureUsed &&
-      //     passwordModel.resetRequest
-      //   ) {
-      //     passwordModel.secureUsed = true;
-      //     passwordModel.resetRequest = false;
-      //     jwtPayload.permissions.push("auth:secure_password");
-      //     passwordModel.save();
-      //   } else {
-      //     match = await bcrypt.compare(password, passwordModel.current);
-      //     if (match && !passwordModel.secureUsed) {
-      //       user.password = passwordModel.current;
-      //       passwordModel.secureUsed = true;
-      //       passwordModel.resetRequest = false;
-      //       passwordModel.save();
-      //       user.save();
-      //     }
-      //   }
-      // }
-
       // Getting all the contacts fo the user if there are any
       let contacts = await User.find({ _id: { $in: user.contacts } });
-
-      // Generate the access token
-      // const token = generateToken(user.id, jwtPayload);
 
       // Return the final result
       return {
@@ -356,6 +304,84 @@ const userResolvers = {
         return "Secure password created";
       } catch (err) {
         throw new Error("Error eccured please try again.");
+      }
+    },
+
+    async deleteContact(_, { contactId, userId }, { req }) {
+      const { error } = isTokenValid(req.headers.authorization.split(" ")[1]);
+      if (error) {
+        console.log(error);
+        throw new ForbiddenError("Not Authorized", {
+          errors: "not_auth",
+        });
+      }
+
+      try {
+        let user = await User.findById(userId);
+
+        user.contacts = user.contacts.filter((contact) => {
+          return contact != contactId;
+        });
+
+        await user.save();
+
+        return "Contact deleted";
+      } catch (err) {
+        throw new Error("Server error");
+      }
+    },
+
+    async blockContact(_, { contactId, userId }, { req }) {
+      const { error } = isTokenValid(req.headers.authorization.split(" ")[1]);
+      if (error) {
+        console.log(error);
+        throw new ForbiddenError("Not Authorized", {
+          errors: "not_auth",
+        });
+      }
+
+      try {
+        let user = await User.findById(userId);
+
+        if (user?.blockedContacts) {
+          // if (user.blockedContacts.includes(contactId)) {
+          //   throw new Error("Contact already blocked");
+          // }
+
+          user.blockedContacts.push(contactId);
+        } else {
+          user.blockedContacts = [contactId];
+        }
+
+        await user.save();
+
+        return "Contact blocked";
+      } catch (err) {
+        throw new Error("Server error");
+      }
+    },
+
+    async unblockContact(_, { contactId, userId }, { req }) {
+      const { error } = isTokenValid(req.headers.authorization.split(" ")[1]);
+      if (error) {
+        console.log(error);
+        throw new ForbiddenError("Not Authorized", {
+          errors: "not_auth",
+        });
+      }
+
+      try {
+        let user = await User.findById(userId);
+
+        user.blockedContacts = user.blockedContacts.filter((contact) => {
+          return contact != contactId;
+        });
+
+        await user.save();
+
+        return "Contact unblocked";
+      } catch (err) {
+        throw new Error("Server error");
       }
     },
   },

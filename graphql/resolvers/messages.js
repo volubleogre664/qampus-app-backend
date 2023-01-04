@@ -11,25 +11,19 @@ const getBookDataForMessages = (messages) => {
 
   // Small function to get books by ID from DB
   // In SQL ->
-  // SELECT id, title, picture, price FROM Book WHERE Book.id = bookId
-  const getBook = async (bookId) =>
-    await Book.findById(bookId, {
-      id: 1,
-      title: 1,
-      picture: 1,
-      price: 1,
-    });
+  // SELECT * FROM Book WHERE Book.id = bookId
+  const getBook = async (bookId) => await Book.findById(bookId);
 
   // Go through messages and find messages with books.
   // Messages with books have the ID of a book in them
   // Simply use the ID to get book Object and push to messagesBooks
   messages.forEach((msg) => {
-    if (msg.book) {
+    if (msg?.book) {
       let { book, ...newMsg } = { ...msg._doc, id: msg._id };
       newMsg.book = getBook(msg.book);
       messagesBooks.push(newMsg);
     } else {
-      messagesBooks.push(msg);
+      messagesBooks.push({ ...msg._doc, id: msg._id, book: null });
     }
   });
 

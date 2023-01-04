@@ -82,6 +82,9 @@ module.exports = gql`
     uploadBook(bookInput: BookInput!): Book!
     deleteBook(bookId: ID!, bookOwner: ID!): String!
     searchBook(searchStr: String!): [Book]
+    deleteContact(contactId: ID!, userId: ID!): String!
+    blockContact(contactId: ID!, userId: ID!): String!
+    unblockContact(contactId: ID!, userId: ID!): String!
     editBook(bookId: ID!, price: Float, isBought: Boolean): Book!
     addMessage(
       to: ID!

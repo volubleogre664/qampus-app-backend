@@ -150,9 +150,6 @@ const bookResolvers = {
           res = await Book.find({ $text: { $search: searchStr } });
         }
 
-        if (!!req?.user?.sub)
-          res = res.filter((book) => book.bookOwner !== req.user.sub);
-
         return res
           .map((book) => ({
             id: book._id,

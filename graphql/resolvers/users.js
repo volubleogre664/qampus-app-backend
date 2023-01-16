@@ -27,7 +27,16 @@ async function generateToken(sub, payload) {
 
 const userResolvers = {
   Mutation: {
-    async login(_, { email, password = "what" }) {
+    async login(_, { email, password = "what" }, { req }) {
+      // Check if user has priviledges for editing the account
+      const { error } = isTokenValid(req.headers.authorization.split(" ")[1]);
+      if (error) {
+        console.log(error);
+        throw new ForbiddenError("Not Authorized", {
+          errors: "not_auth",
+        });
+      }
+
       email = email.trim();
       password = password.trim();
       const { errors, valid } = validateLoginInput(email, password);
@@ -72,18 +81,26 @@ const userResolvers = {
           university,
           campus,
           gender,
-          password,
-          confirmPassword,
         },
-      }
+      },
+      { req }
     ) {
+      // Check if user has priviledges for editing the account
+      const { error } = isTokenValid(req.headers.authorization.split(" ")[1]);
+      if (error) {
+        console.log(error);
+        throw new ForbiddenError("Not Authorized", {
+          errors: "not_auth",
+        });
+      }
+
+      console.log("Registering a user");
+
       // 1. Validate user input
       const { valid, errors } = validateRegisterInput(
         firstName,
         lastName,
-        email,
-        password,
-        confirmPassword
+        email
       );
 
       // Throw errors if there is an error in the inputs
@@ -98,9 +115,6 @@ const userResolvers = {
           errors: "email_exists",
         });
       }
-
-      // hash password and create user password
-      password = await bcrypt.hash(password, 12);
 
       // let csEmail = "nucelarsoftwarehosting@gmail.com";
       // const csRes = await User.findById("62162fa57faa3f001601f247");
@@ -118,29 +132,16 @@ const userResolvers = {
           university && university.replace(/ /gi, "") ? university : "",
         campus: campus && campus.replace(/ /gi, "") ? campus : "",
         gender: gender && gender.replace(/ /gi, "") ? gender : "",
-        password,
         contacts: ["62162fa57faa3f001601f247"],
       });
 
       // Save user to database
       const res = await newUser.save();
 
-      // Generate the JWT token for the user's authentication
-      const jwtPayload = {
-        roles: "user",
-        permissions: [
-          "read:related_content",
-          "read:own_content",
-          "write:own_content",
-        ],
-      };
-      const token = await generateToken(res._id, jwtPayload);
-
       // Return all the info back to the client
       const _user = {
         ...res._doc,
         id: res._id,
-        token,
       };
 
       _user.contacts = [
@@ -205,40 +206,10 @@ const userResolvers = {
       // SELECT * FROM User WHERE id = <user.id>
       const updatedUser = await User.findById(updateInput.id);
 
-      // TODO: Come back and here work out the update user with and without the password
-      // Check if passwords match before doing anything
-
-      // strip password, confirmNewPassword, newPassword off of the updateInput
-      // save the rest to newUserData
-      const { password, confirmNewPassword, newPassword, ...newUserData } =
-        updateInput;
-
-      // If user wishes to change the password then this is the code for that
-      // Check if updateInput.newPassword === update.confirmNewPassword
-      // Hash the passwords and map them to newUserData variable.
-      if (password && newPassword === confirmNewPassword) {
-        const match = await bcrypt.compare(password, updatedUser.password);
-        let passwordModel = await Password.findOne({
-          owner: updatedUser.email,
-        });
-
-        // Throw user input error if passwords do not match
-        if (!match && password !== "secure" && !passwordModel.secureUsed) {
-          throw new UserInputError("Wrong credentials", {
-            errors: {
-              password: "current_password_incorrect",
-            },
-          });
-        }
-
-        const newHashPassword = await bcrypt.hash(newPassword, 12);
-        newUserData.password = newHashPassword;
-      }
-
       // Save the data to updatedUser
-      Object.keys(newUserData).forEach((key) => {
-        if (newUserData[key] || key === "picture") {
-          updatedUser[key] = newUserData[key];
+      Object.keys(updateInput).forEach((key) => {
+        if (updateInput[key] || key === "picture") {
+          updatedUser[key] = updateInput[key];
         }
       });
 
@@ -246,15 +217,6 @@ const userResolvers = {
       const res = await updatedUser.save();
 
       // Generate the new token with new user data
-      const jwtPayload = {
-        roles: "user",
-        permissions: [
-          "read:related_content",
-          "read:own_content",
-          "write:own_content",
-        ],
-      };
-      const token = await generateToken(res._id, jwtPayload);
 
       let contacts = await User.find({ _id: { $in: res.contacts } });
 
@@ -262,7 +224,6 @@ const userResolvers = {
         ...res._doc,
         id: res._id,
         contacts: contacts || [],
-        token,
       };
 
       // Return the whole info to the client

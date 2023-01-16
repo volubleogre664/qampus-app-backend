@@ -39,8 +39,11 @@ module.exports = gql`
     firstName: String!
     lastName: String!
     email: String!
-    password: String!
-    confirmPassword: String!
+    picture: String
+    university: String
+    degree: String
+    campus: String
+    gender: String
   }
 
   input BookInput {
@@ -62,9 +65,6 @@ module.exports = gql`
     university: String
     campus: String
     gender: String
-    newPassword: String
-    confirmNewPassword: String
-    password: String
   }
 
   type Query {

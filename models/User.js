@@ -11,7 +11,6 @@ const userSchema = new Schema({
   gender: String,
   contacts: [Schema.Types.ObjectId],
   blockedContacts: [Schema.Types.ObjectId],
-  password: String,
   status: {
     type: String,
     default: "pending",
